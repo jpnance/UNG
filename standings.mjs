@@ -128,7 +128,7 @@ function pickToScore(pick) {
 
   const team = teams.find((team) => team.name === pick.name);
 
-  const playoffStatus = team.override ?? Math.round(team.nytOdds);
+  const playoffStatus = team.override ?? Math.round(team.playoffOdds);
 
   return {
     abbreviation: pick.abbreviation,
@@ -189,7 +189,7 @@ function addPlayoffOddsToTeamData(playoffOdds) {
   return team => {
     const existingTeam = playoffOdds.find(findByAbbrevation(team.abbreviation));
 
-    team.nytOdds = existingTeam.playoffOdds;
+    team.playoffOdds = existingTeam.playoffOdds;
   }
 }
 
