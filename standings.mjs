@@ -6,44 +6,52 @@ const nytAssetKey = 'bb1c5f697293fe8bb92fa988e655b6389c4e1121';
 const disqualifiedPlayers = [];
 
 const teams = [
-  { abbreviation: 'ari', name: 'Cardinals' },
-  { abbreviation: 'atl', name: 'Falcons' },
-  { abbreviation: 'bal', name: 'Ravens' },
-  { abbreviation: 'buf', name: 'Bills' },
-  { abbreviation: 'car', name: 'Panthers' },
-  { abbreviation: 'chi', name: 'Bears' },
-  { abbreviation: 'cin', name: 'Bengals' },
-  { abbreviation: 'cle', name: 'Browns' },
-  { abbreviation: 'dal', name: 'Cowboys' },
-  { abbreviation: 'den', name: 'Broncos' },
-  { abbreviation: 'det', name: 'Lions' },
-  { abbreviation: 'gb', name: 'Packers' },
-  { abbreviation: 'hou', name: 'Texans' },
-  { abbreviation: 'ind', name: 'Colts' },
-  { abbreviation: 'jax', name: 'Jaguars' },
-  { abbreviation: 'kc', name: 'Chiefs' },
-  { abbreviation: 'lv', name: 'Raiders' },
-  { abbreviation: 'lac', name: 'Chargers' },
-  { abbreviation: 'lar', name: 'Rams' },
-  { abbreviation: 'mia', name: 'Dolphins' },
-  { abbreviation: 'min', name: 'Vikings' },
-  { abbreviation: 'ne', name: 'Patriots' },
-  { abbreviation: 'no', name: 'Saints' },
-  { abbreviation: 'nyg', name: 'Giants' },
-  { abbreviation: 'nyj', name: 'Jets' },
-  { abbreviation: 'phi', name: 'Eagles' },
-  { abbreviation: 'pit', name: 'Steelers' },
-  { abbreviation: 'sf', name: '49ers' },
-  { abbreviation: 'sea', name: 'Seahawks' },
-  { abbreviation: 'tb', name: 'Buccaneers' },
-  { abbreviation: 'ten', name: 'Titans' },
-  { abbreviation: 'wsh', name: 'Commanders' }
+  { abbreviation: 'ARI', name: 'Cardinals' },
+  { abbreviation: 'ATL', name: 'Falcons' },
+  { abbreviation: 'BAL', name: 'Ravens' },
+  { abbreviation: 'BUF', name: 'Bills' },
+  { abbreviation: 'CAR', name: 'Panthers' },
+  { abbreviation: 'CHI', name: 'Bears' },
+  { abbreviation: 'CIN', name: 'Bengals' },
+  { abbreviation: 'CLE', name: 'Browns' },
+  { abbreviation: 'DAL', name: 'Cowboys' },
+  { abbreviation: 'DEN', name: 'Broncos' },
+  { abbreviation: 'DET', name: 'Lions' },
+  { abbreviation: 'GB', name: 'Packers' },
+  { abbreviation: 'HOU', name: 'Texans' },
+  { abbreviation: 'IND', name: 'Colts' },
+  { abbreviation: 'JAX', name: 'Jaguars' },
+  { abbreviation: 'KC', name: 'Chiefs' },
+  { abbreviation: 'LV', name: 'Raiders' },
+  { abbreviation: 'LAC', name: 'Chargers' },
+  { abbreviation: 'LAR', name: 'Rams' },
+  { abbreviation: 'MIA', name: 'Dolphins' },
+  { abbreviation: 'MIN', name: 'Vikings' },
+  { abbreviation: 'NE', name: 'Patriots' },
+  { abbreviation: 'NO', name: 'Saints' },
+  { abbreviation: 'NYG', name: 'Giants' },
+  { abbreviation: 'NYJ', name: 'Jets' },
+  { abbreviation: 'PHI', name: 'Eagles' },
+  { abbreviation: 'PIT', name: 'Steelers' },
+  { abbreviation: 'SF', name: '49ers' },
+  { abbreviation: 'SEA', name: 'Seahawks' },
+  { abbreviation: 'TB', name: 'Buccaneers' },
+  { abbreviation: 'TEN', name: 'Titans' },
+  { abbreviation: 'WAS', name: 'Commanders' }
 ];
+
+const mostRecentTeamPlayoffOdds =
+  await superagent
+    .get('https://www.nytimes.com/athletic/5698572/2024/09/10/nfl-playoff-2024-chances-projections-probabilities/')
+    .then(extractForecastData)
+    .then(extractMostRecentTeamPlayoffOdds);
+
+teams.forEach(addPlayoffOddsToTeamData(mostRecentTeamPlayoffOdds));
 
 const entries = {};
 
 await superagent
-  .get('https://sheets.googleapis.com/v4/spreadsheets/1r8sdJByKZI3KBQm0h7sRznzY_lbosDz6sLWmA2l8taY/values/Props')
+  .get('https://sheets.googleapis.com/v4/spreadsheets/1XDANDADsH9iCcUmqP7qRkY3P5bKF86iZJgnUHN9nzFk/values/Picks')
   .query({ alt: 'json', key: process.env.GOOGLE_API_KEY })
   .then((response) => {
     response.body.values.forEach((row, i) => {
@@ -53,7 +61,7 @@ await superagent
 
       let [week, entrant, name] = row;
 
-      const team = teams.find((team) => team.name === name);
+      const team = teams.find(findByName(name));
 
       let entry = entries[entrant] || { picks: [] };
 
@@ -66,49 +74,6 @@ await superagent
       });
     });
   });
-
-for (const team of teams) {
-  const teamAbbreviation = team.abbreviation;
-
-  await superagent
-      .get(`https://static01.nytimes.com/newsgraphics/2023-09-20-nfl-playoff-simulator/${nytAssetKey}/_assets/odds/${teamAbbreviation}.json`)
-      .then((response) => {
-        team.nytOdds = response.body.overall;
-      });
-}
-
-override('ari', 0);
-override('atl', 0);
-override('bal', 1);
-override('buf', 1);
-override('car', 0);
-override('chi', 0);
-override('cin', 0);
-override('cle', 1);
-override('dal', 1);
-override('den', 0);
-override('det', 1);
-override('gb', 1);
-override('hou', 1);
-override('ind', 0);
-override('jax', 0);
-override('kc', 1);
-override('lv', 0);
-override('lac', 0);
-override('lar', 1);
-override('mia', 1);
-override('min', 0);
-override('ne', 0);
-override('no', 0);
-override('nyg', 0);
-override('nyj', 0);
-override('phi', 1);
-override('pit', 1);
-override('sf', 1);
-override('sea', 0);
-override('tb', 1);
-override('ten', 0);
-override('wsh', 0);
 
 let playerScores =
   Object.entries(entries)
@@ -137,7 +102,7 @@ let playerScores =
     });
 
 playerScores.forEach(([player, score], i) => {
-  console.log(`${i + 1}. ${player}: ${score.points} points / ${renderTiebreakers(score.tiebreakers)}`);
+  console.log(`${i + 1}. ${player}: ${score.points} point${score.points !== 1 ? 's' : ''} / ${renderTiebreakers(score.tiebreakers)}`);
 });
 
 function removeDisqualifiedPlayers([player, entry]) {
@@ -218,4 +183,52 @@ function renderTiebreakers(tiebreakers) {
       })
       .join(', ')
   );
+}
+
+function addPlayoffOddsToTeamData(playoffOdds) {
+  return team => {
+    const existingTeam = playoffOdds.find(findByAbbrevation(team.abbreviation));
+
+    team.nytOdds = existingTeam.playoffOdds;
+  }
+}
+
+function findByAbbrevation(abbreviation) {
+  return item => item.abbreviation === abbreviation;
+}
+
+function findByName(name) {
+  return item => item.name === name;
+}
+
+function extractForecastData(response) {
+    const dataRegexp = /<script.*?id="graphics-data".*?>(.*?)<\/script>/;
+
+    const forecastData = JSON.parse(response.text.match(dataRegexp)[1]);
+
+    return forecastData;
+}
+
+function extractMostRecentTeamPlayoffOdds(forecastData) {
+  const mostRecentWeek = extractMostRecentWeek(forecastData);
+  const mostRecentForecasts = forecastData[`forecast_week${mostRecentWeek}`];
+
+  return mostRecentForecasts.map(forecast => {
+    return { abbreviation: forecast.team, playoffOdds: parseFloat(forecast.make_playoffs) };
+  });
+}
+
+function extractMostRecentWeek(forecastData) {
+  return 2;
+
+  /*
+  Object.entries(forecastData).forEach(([ key, value ]) => {
+    if (key.startsWith('forecast_week')) {
+      const weekForecasts = forecastData[key];
+
+      weekForecasts
+      forecasts.push(forecastData[key]);
+    }
+  });
+  */
 }
