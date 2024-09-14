@@ -1,0 +1,42 @@
+version: '3.6'
+
+services:
+    web:
+        container_name: untitled-web
+        profiles:
+            - main
+            - postseason
+        image: node:14-alpine
+        volumes:
+            - .:/app
+            - ../ssl:/ssl
+        working_dir: /app
+        ports:
+            - $PORT:$PORT
+        command: node index.js
+
+    mongo:
+        container_name: untitled-mongo
+        profiles:
+            - main
+            - postseason
+        image: mongo:3.6.8
+        volumes:
+            - untitled-data:/data/db
+
+    cron:
+        container_name: untitled-cron
+        profiles:
+            - main
+        image: node:14-alpine
+        volumes:
+            - .:/app
+        command: sh -c "crontab /app/etc/crontab && crond -f"
+
+volumes:
+    untitled-data:
+        name: untitled-data
+
+networks:
+    default:
+        name: coinflipper
