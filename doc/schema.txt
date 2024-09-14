@@ -15,7 +15,11 @@ games {
 users {
   _id: ObjectId
   username: string
+  firstName: string
+  lastName: string
+  displayName: string
   seasons: number[]
+  admin: boolean
 }
 
 entries {
