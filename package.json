@@ -23,6 +23,7 @@
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
+    "mongoose": "^5.13.20",
     "pug": "^3.0.2",
     "superagent": "^3.8.2"
   }
