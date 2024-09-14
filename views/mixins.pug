@@ -1,0 +1,233 @@
+mixin title(...breadcrumbs)
+	title
+		each breadcrumb in breadcrumbs
+			| #{breadcrumb} &laquo;
+			|
+		| Untitled NFL Game &laquo; Coinflipper
+
+mixin teamButton(session, game, side)
+	-
+		var button = { classes: [], actionLink: null };
+
+		if (game.sessionPick == side.abbreviation) {
+			button.actionLink = '/unpick/' + side.abbreviation + '/' + game._id;
+			button.classes.push('btn-secondary');
+		}
+		else {
+			button.actionLink = '/pick/' + side.abbreviation + '/' + game._id;
+			button.classes.push('btn-outline-secondary');
+		}
+
+	a.team-button.text-center.btn(href=button.actionLink class=button.classes data-team-id=side.abbreviation)
+		| #{side.abbreviation}
+		if game.line != null
+			br
+			span.record
+				if side.abbreviation == game.homeTeam.abbreviation
+					+formatLine(game.line, false)
+				else if side.abbreviation == game.awayTeam.abbreviation
+					+formatLine(game.line, true)
+
+mixin formatLine(line, reverse)
+	if line == null
+		| --
+	else if line == 0
+		| PK
+	else
+		if reverse
+			- line = -1 * line
+
+		if line > 0
+			| +#{line.toFixed(1)}
+		else
+			| #{line.toFixed(1)}
+
+mixin formatPoints(points)
+	if points == 0.5
+		| &frac12;
+	else if points - Math.floor(points) == 0.5
+		| #{Math.floor(points)} &frac12;
+	else
+		| #{Math.floor(points)}
+
+mixin record(classic)
+	if classic
+		| (#{classic.record.wins}-#{classic.record.losses})
+	else
+		| (0-0)
+
+mixin gameCard(game, showDate)
+	-
+		var classes = {
+			card: { border: [] },
+			header: { background: [], linkText: [] },
+			away: { background: [], linkText: [], pitcherText: ['text-muted'], scoreText: [], picksText: [] },
+			home: { background: [], linkText: [], pitcherText: ['text-muted'], scoreText: [], picksText: [] }
+		}
+
+		if (game.sessionPick) {
+			classes.card.border.push('border-secondary');
+
+			if (game.sessionPick == game.awayTeam.abbreviation) {
+				classes.away.background.push('bg-light-gray');
+			}
+			else if (game.sessionPick == game.homeTeam.abbreviation) {
+				classes.home.background.push('bg-light-gray');
+			}
+		}
+
+		if (game.hasPotentiallyStarted() && !game.isFinal() && !game.isCanceled()) {
+			classes.header.background.push('bg-primary');
+			classes.header.linkText.push('text-white');
+			classes.away.picksText.push('text-dark');
+			classes.home.picksText.push('text-dark');
+		}
+
+		if (game.isFinal()) {
+			if (game.sessionPick) {
+				classes.header.linkText.push('text-white');
+
+				if (game.sessionPick) {
+					if (game.winner && game.winner == game.sessionPick) {
+						classes.header.background.push('bg-success');
+					}
+					else if (game.winner && game.winner != game.sessionPick) {
+						classes.header.background.push('bg-danger');
+					}
+					else if (game.push) {
+						classes.header.background.push('bg-secondary');
+					}
+				}
+			}
+
+			if (game.winner == game.awayTeam.abbreviation) {
+				classes.away.picksText.push('text-success');
+				classes.home.picksText.push('text-danger');
+			}
+			else if (game.winner == game.homeTeam.abbreviation) {
+				classes.home.picksText.push('text-success');
+				classes.away.picksText.push('text-danger');
+			}
+			else if (game.push) {
+				classes.home.picksText.push('text-secondary');
+				classes.away.picksText.push('text-secondary');
+			}
+		}
+		else if (game.isCanceled()) {
+			if (game.sessionPick) {
+				classes.header.linkText.push('text-white');
+				classes.header.background.push('bg-danger');
+			}
+
+			classes.away.picksText.push('text-danger');
+			classes.home.picksText.push('text-danger');
+		}
+
+	div.col-xs-12.col-sm-10.offset-sm-1.col-md-6.offset-md-0.col-lg-4.mb-4(id='game-' + game._id)
+		if showDate
+			h6.text-muted.text-center #{dateFormat(game.kickoff, 'mmmm dS')}
+		div.card(class=classes.card.border)
+			div.card-header.py-1(class=classes.header.background)
+				div.row.justify-content-center
+					div.col-10.col-sm-12.col-md-12.text-center
+						span(class=classes.header.linkText)
+							if game.hasDefinitelyStarted()
+								+numberToQuarter(game.status.quarter)
+								|
+								|
+								| - #{game.status.clock}
+							else if !game.hasPotentiallyStarted()
+								if game.hasStartTime()
+									| #{dateFormat(game.kickoff, 'dddd "at" h:MMtt')} ET
+								else
+									| TBD
+							else if game.isAtEndOfQuarter()
+								| End of
+								|
+								|
+								+numberToQuarter(game.status.quarter)
+							else if game.isAtHalftime()
+								| Halftime
+							else if game.isFinal()
+								| Final
+							else if game.isCanceled()
+								| Canceled
+							else if !game.hasStartTime()
+								| TBD
+							else
+								| In Progress
+
+			ul.list-group.list-group-flush
+				+teamRow(game, 'awayTeam', classes.away)
+				+teamRow(game, 'homeTeam', classes.home)
+
+			if session && session.user.isEligibleFor(process.env.SEASON) && !game.hasPotentiallyStarted()
+				div.card-footer.text-center
+					div.btn-group
+						+teamButton(session, game, game.awayTeam)
+						+teamButton(session, game, game.homeTeam)
+
+mixin teamRow(game, side, classes)
+	li.team-row.list-group-item.py-1(id='team-row-' + game[side].abbreviation class=classes.background)
+		div.row
+			div.col-8.offset-1.col-sm-8.offset-sm-1.col-md-8.p-0
+					div.d-flex.align-items-center
+						img(src='/images/' + game[side].abbreviation.toLowerCase() + '.png')
+						h5.mb-0.ml-2.text-nowrap
+							|
+							| #{game[side].team.mascot}
+							if side == 'homeTeam'
+								span.line.ml-1.text-nowrap
+									+formatLine(game.line)
+
+			h5.col-2.text-center.text-nowrap.font-weight-normal.p-0.mb-0(class=classes.scoreText)
+				if game.hasPotentiallyStarted()
+					| #{game[side].score}
+		div.row
+			if game.hasPotentiallyStarted() && game[side].picks && game[side].picks.length > 0
+				div.picks.col-8.offset-1.col-sm-8.offset-sm-1.p-0.mb-1.mt-1(class=classes.picksText)
+					each pick in game[side].picks
+						span.d-inline-block.mr-2 #{pick}
+
+mixin scheduleNav(lastWeek, thisWeek, nextWeek)
+	ul.nav.justify-content-center
+		if lastWeek > 0
+			li.nav-item
+				a.nav-link(href='/schedule/' + lastWeek)
+					span &laquo; Week #{lastWeek}
+		li.nav-item
+			a.nav-link.disabled(href='/schedule/' + thisWeek)
+				span Week #{thisWeek}
+
+		if nextWeek <= 18
+			li.nav-item
+				a.nav-link(href='/schedule/' + nextWeek)
+					span Week #{nextWeek} &raquo;
+
+mixin scoreRelativeToTeam(game, team)
+	if game.away.team._id == team._id
+		| #{game.away.score}-#{game.home.score}
+	else if game.home.team._id == team._id
+		| #{game.home.score}-#{game.away.score}
+
+mixin numberToWord(number)
+	if number == 4
+		| four
+	else if number == 5
+		| five
+	else if number == 6
+		| six
+	else if number == 7
+		| seven
+
+mixin numberToQuarter(number)
+	if number == 1
+		| 1st Quarter
+	else if number == 2
+		| 2nd Quarter
+	else if number == 3
+		| 3rd Quarter
+	else if number == 4
+		| 4th Quarter
+	else if number == 5
+		| Overtime

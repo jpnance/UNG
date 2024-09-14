@@ -1,0 +1,30 @@
+extends ../layout.pug
+
+block title
+	+title('Add User')
+
+block content
+	form.col-12.col-md-8.col-lg-6.col-xl-4(action='/users/edit/' + user.username method='POST')
+		if session && session.user.admin
+			div.form-group
+				label(for='username') Username
+				input.form-control(type='text' id='username' name='username' value=user.username disabled)
+
+			div.form-group
+				label(for='firstName') First Name
+				input.form-control(type='text' id='firstName' name='firstName' value=user.firstName)
+
+			div.form-group
+				label(for='lastName') Last Name
+				input.form-control(type='text' id='lastName' name='lastName' value=user.lastName)
+
+			div.form-group
+				label(for='displayName') Display Name
+				input.form-control(type='text' id='displayName' name='displayName' value=user.displayName)
+
+		if session && session.user.admin
+			div.form-check.pb-3
+				input.form-check-input(type='checkbox' id='eligible' name='eligible' checked=user.isEligibleFor(process.env.SEASON) ? 'checked' : null)
+				label.form-check-label(for='eligible') Eligible for Current Season
+
+		button.btn.btn-primary(type='submit') Edit User

@@ -1,0 +1,28 @@
+extends ../layout.pug
+
+block title
+	+title('Add User')
+
+block content
+	form.col-12.col-md-8.col-lg-6.col-xl-4(action='/users/add' method='POST')
+		div.form-group
+			label(for='username') Username
+			input.form-control(type='text' id='username' name='username')
+
+		div.form-group
+			label(for='firstName') First Name
+			input.form-control(type='text' id='firstName' name='firstName')
+
+		div.form-group
+			label(for='lastName') Last Name
+			input.form-control(type='text' id='lastName' name='lastName')
+
+		div.form-group
+			label(for='displayName') Display Name
+			input.form-control(type='text' id='displayName' name='displayName')
+
+		div.form-check.pb-3
+			input.form-check-input(type='checkbox' id='eligible' name='eligible' checked)
+			label.form-check-label(for='eligible') Eligible for Current Season
+
+		button.btn.btn-primary(type='submit') Add User

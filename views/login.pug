@@ -1,0 +1,21 @@
+extends layout.pug
+
+block title
+	+title('Log In')
+
+block content
+	form.col-12.col-md-8.col-lg-6.col-xl-4(name='login' action=process.env.LOGIN_SERVICE_EXTERNAL + '/links/create' method='POST')
+		if success
+			div.alert.alert-success(role='alert') #{success.message}
+		else
+			if error
+				div.alert.alert-danger(role='alert') #{error.message}
+
+			div.form-group
+				label(for='email') Email Address
+				input.form-control(type='email' id='email' name='email')
+
+			input(type='hidden' name='sendLoginLink' value='true')
+			input(type='hidden' name='redirectTo' value=process.env.UNTITLED_SERVICE)
+
+			button.btn.btn-primary(type='submit') Send Me a Login Link

@@ -1,0 +1,73 @@
+include mixins.pug
+
+doctype html
+html(lang='en' xml:lang='en' xmlns='http://www.w3.org/1999/xhtml')
+	head
+		meta(charset='utf-8')
+		meta(name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no')
+		meta(name='google' content='notranslate')
+
+		block title
+
+		block styles
+			link(href='/css/bootstrap.min.css' rel='stylesheet')
+			//link(href='/css/classics.css' rel='stylesheet')
+
+		block scripts
+			script(src='/js/jquery.min.js' type='text/javascript')
+			script(src='/js/bootstrap.min.js' type='text/javascript')
+			//script(src='/js/classics.js' type='text/javascript')
+
+		link(href='/images/favicon.ico' rel='icon')
+
+	body
+		-
+			var navItems = [];
+
+			if (session) {
+				navItems.push({ name: 'Log Out', href: process.env.LOGIN_SERVICE_EXTERNAL + '/sessions/delete' });
+			}
+			else {
+				navItems.push({ name: 'Log In', href: '/login' });
+			}
+
+		nav.navbar.navbar-expand-md.navbar-light.bg-light.sticky-top.mb-3
+			a.navbar-brand(href='/')
+				img.logo.mr-2(src='/images/logo.png' height='30')
+				strong.align-middle Untitled NFL Game
+			button.navbar-toggler(type='button' data-toggle='collapse' data-target='#navbarNav')
+				span.navbar-toggler-icon
+			div.collapse.navbar-collapse#navbarNav
+				ul.navbar-nav
+					each navItem in navItems
+						if navItem.name == 'Log Out'
+							li.nav-item.dropdown.py-1
+								a.nav-link.dropdown-toggle(href='#' data-toggle='dropdown')
+									| Log Out
+
+								div.log-out.dropdown-menu.py-0
+									a.this-device.dropdown-item(href=process.env.LOGIN_SERVICE_EXTERNAL + '/sessions/delete') This Device
+									a.all-devices.dropdown-item(href=process.env.LOGIN_SERVICE_EXTERNAL + '/sessions/deleteAll') All Devices
+						else
+							li.nav-item.py-1
+								a.nav-link(href=navItem.href target=navItem.target || '_self') #{navItem.name}
+
+		//-
+			if session && session.user.admin
+				div.container.pb-3
+					div.d-block.d-sm-none xs
+					div.d-none.d-sm-block.d-md-none sm
+					div.d-none.d-md-block.d-lg-none md
+					div.d-none.d-lg-block.d-xl-none lg
+					div.d-none.d-xl-block xl
+
+		div.container.pb-3
+			block content
+
+		div#modal.modal.fade
+			div.modal-dialog
+				div.modal-content
+					div.modal-header
+						h5.modal-title Error
+						button.close(type='button' data-dismiss='modal'): span &times;
+					div.modal-body Default error message
