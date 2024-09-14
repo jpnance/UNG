@@ -1,0 +1,34 @@
+teams {
+  _id: ObjectId
+  location: string
+  name: string
+}
+
+games {
+  _id: ObjectId (or maybe number, to link back to ESPN)
+  awayTeam: ref(team)
+  homeTeam: ref(team)
+  kickoff: datetime
+
+}
+
+users {
+  _id: ObjectId
+  username: string
+  seasons: number[]
+}
+
+entries {
+  _id: ObjectId
+  user: ref(user)
+  season: number
+  picks: pick[]
+}
+
+picks {
+  _id: ObjectId
+  user: ref(user)
+  season: number
+  week: number
+  team: ref(team)
+}
