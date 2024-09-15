@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "seed-admin": "node data/seed-admin",
+    "seed-teams": "node data/seed-teams",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
