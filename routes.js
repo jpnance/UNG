@@ -18,6 +18,7 @@ module.exports = function(app) {
 	app.get('/users', users.showAll);
 	app.get('/users/add', users.add);
 	app.get('/users/edit/:username', users.edit);
+	app.post('/users/edit/:username', users.update);
 
 	app.get('/login', login.loginPrompt);
 };

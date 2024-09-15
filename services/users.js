@@ -47,3 +47,42 @@ module.exports.showAll = function(request, response) {
 		}
 	});
 };
+
+module.exports.update = function(request, response) {
+	Session.withActiveSession(request, function(error, session) {
+		if (!session || (session.user.username != request.params.username && !session.user.admin)) {
+			response.redirect('/');
+			return;
+		}
+
+		var data = [
+			User.findOne({ username: request.params.username })
+		];
+
+		Promise.all(data).then(function(values) {
+			var user = values[0];
+
+			if (session.user.admin) {
+				user.firstName = request.body.firstName;
+				user.lastName = request.body.lastName;
+				user.displayName = request.body.displayName;
+
+				if (request.body.eligible == 'on') {
+					user.makeEligibleFor(process.env.SEASON);
+				}
+				else {
+					user.makeUneligibleFor(process.env.SEASON);
+				}
+			}
+
+			user.save(function(error) {
+				if (error) {
+					response.send(error);
+				}
+				else {
+					response.redirect('/users');
+				}
+			});
+		});
+	});
+};
