@@ -9,7 +9,6 @@ games {
   awayTeam: ref(team)
   homeTeam: ref(team)
   kickoff: datetime
-
 }
 
 users {
