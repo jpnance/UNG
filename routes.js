@@ -6,7 +6,6 @@ var users = require('./services/users');
 module.exports = function(app) {
 	app.get('/', function(request, response) {
 		Session.withActiveSession(request, function(error, session) {
-			console.log(error, session);
 			var templateData = {
 				session: session,
 				users: []
