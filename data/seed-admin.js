@@ -6,7 +6,7 @@ var mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.MONGODB_URI, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true }, seedAdmin)
 
-function seedAdmin(...args) {
+function seedAdmin() {
 	var admin = new User({
 		username: 'jpnance',
 		firstName: 'Patrick',
