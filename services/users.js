@@ -1,5 +1,6 @@
 var Session = require('../lib/session');
 
+var Entry = require('../models/entry');
 var User = require('../models/user');
 
 module.exports.add = function(request, response) {
@@ -80,11 +81,9 @@ module.exports.update = function(request, response) {
 					response.send(error);
 				}
 				else {
-					response.redirect('/users');
-
-					/*Entry.initialize(user, process.env.SEASON).then(function() {
+					Entry.initialize(user, process.env.SEASON).then(function() {
 						response.redirect('/users');
-					});*/
+					});
 				}
 			});
 		});
