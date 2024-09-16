@@ -81,6 +81,10 @@ module.exports.update = function(request, response) {
 				}
 				else {
 					response.redirect('/users');
+
+					/*Entry.initialize(user, process.env.SEASON).then(function() {
+						response.redirect('/users');
+					});*/
 				}
 			});
 		});
