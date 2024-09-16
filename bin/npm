@@ -1,3 +1,3 @@
 #!/bin/sh
 
-docker run --rm -v $(PWD):/app --network coinflipper node:14-alpine sh -c "cd /app && npm $*"
+docker run --rm -v ${PWD}:/app --network coinflipper node:14-alpine sh -c "cd /app && npm $*"
