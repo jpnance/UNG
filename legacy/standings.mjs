@@ -219,16 +219,19 @@ function extractMostRecentTeamPlayoffOdds(forecastData) {
 }
 
 function extractUpcomingWeek(forecastData) {
-  return 5;
+  let highestWeekValue = 0;
 
-  /*
   Object.entries(forecastData).forEach(([ key, value ]) => {
-    if (key.startsWith('forecast_week')) {
-      const weekForecasts = forecastData[key];
+    let keyMatches = key.match(/forecast_week(\d\d?)/);
 
-      weekForecasts
-      forecasts.push(forecastData[key]);
+    if (keyMatches) {
+      let week = parseInt(keyMatches[1]);
+
+      if (week > highestWeekValue) {
+        highestWeekValue = week;
+      }
     }
   });
-  */
+
+  return highestWeekValue;
 }
