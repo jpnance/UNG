@@ -42,7 +42,7 @@ const teams = [
 
 const mostRecentTeamPlayoffOdds =
   await superagent
-    .get('https://www.nytimes.com/athletic/5698572/2024/09/10/nfl-playoff-2024-chances-projections-probabilities/')
+    .get('https://www.nytimes.com/athletic/5698572')
     .then(extractForecastData)
     .then(extractMostRecentTeamPlayoffOdds);
 
