@@ -40,6 +40,11 @@ const teams = [
   { abbreviation: 'WAS', name: 'Commanders' }
 ];
 
+function printDataAndExit(data) {
+  console.log(data);
+  process.exit();
+}
+
 const mostRecentTeamPlayoffOdds =
   await superagent
     .get('https://www.nytimes.com/athletic/5698572')
