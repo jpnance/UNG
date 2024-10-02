@@ -210,16 +210,16 @@ function extractForecastData(response) {
 }
 
 function extractMostRecentTeamPlayoffOdds(forecastData) {
-  const mostRecentWeek = extractMostRecentWeek(forecastData);
-  const mostRecentForecasts = forecastData[`forecast_week${mostRecentWeek}`];
+  const upcomingWeek = extractUpcomingWeek(forecastData);
+  const mostRecentForecasts = forecastData[`forecast_week${upcomingWeek}`];
 
   return mostRecentForecasts.map(forecast => {
     return { abbreviation: forecast.team, playoffOdds: parseFloat(forecast.make_playoffs) };
   });
 }
 
-function extractMostRecentWeek(forecastData) {
-  return 2;
+function extractUpcomingWeek(forecastData) {
+  return 5;
 
   /*
   Object.entries(forecastData).forEach(([ key, value ]) => {
