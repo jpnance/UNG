@@ -109,7 +109,17 @@ let playerScores =
     });
 
 playerScores.forEach(([player, score], i) => {
-  console.log(`${i + 1}. ${player}: ${score.points} point${score.points !== 1 ? 's' : ''} / ${renderTiebreakers(score.tiebreakers)}`);
+  let tie = false;
+
+  const previousPlayerScore = playerScores[i - 1];
+
+  if (previousPlayerScore) {
+    tie = sameScores(previousPlayerScore[1], score);
+  }
+
+  const rank = tie ? '' : (i + 1).toString() + '.';
+
+  console.log(`${rank.padStart(4, ' ')} ${player}: ${score.points} point${score.points !== 1 ? 's' : ''} / ${renderTiebreakers(score.tiebreakers)}`);
 });
 
 function removeDisqualifiedPlayers([player, entry]) {
@@ -241,4 +251,13 @@ function extractUpcomingWeek(forecastData) {
   });
 
   return highestWeekValue;
+}
+
+function sameScores(scoreOne, scoreTwo) {
+  if (!scoreOne) {
+    return false;
+  }
+  else {
+    return scoreOne.points === scoreTwo.points && renderTiebreakers(scoreOne.tiebreakers) === renderTiebreakers(scoreTwo.tiebreakers);
+  }
 }
