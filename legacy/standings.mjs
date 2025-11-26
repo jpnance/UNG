@@ -49,7 +49,7 @@ function printDataAndExit(data) {
 
 const mostRecentTeamPlayoffOdds =
   await superagent
-    .get('https://www.nytimes.com/athletic/5698572')
+    .get('https://www.nytimes.com/athletic/nfl-playoff-picture/2025/')
     .then(extractForecastData)
     .then(extractMostRecentTeamPlayoffOdds);
 
@@ -58,7 +58,7 @@ teams.forEach(addPlayoffOddsToTeamData(mostRecentTeamPlayoffOdds));
 const entries = {};
 
 await superagent
-  .get('https://sheets.googleapis.com/v4/spreadsheets/1XDANDADsH9iCcUmqP7qRkY3P5bKF86iZJgnUHN9nzFk/values/Picks')
+  .get('https://sheets.googleapis.com/v4/spreadsheets/1EcuoMgiooMC4fBlqxEtn0-am1k007Pt0kt577j8h2r0/values/Picks')
   .query({ alt: 'json', key: process.env.GOOGLE_API_KEY })
   .then((response) => {
     response.body.values.forEach((row, i) => {
@@ -219,34 +219,27 @@ function findByName(name) {
 }
 
 function extractForecastData(response) {
-    const dataRegexp = /<script.*?id="graphics-data".*?>(.*?)<\/script>/;
+    const dataRegexp = /<script.*?id="__NEXT_DATA__".*?>(.*?)<\/script>/;
 
-    const forecastData = JSON.parse(response.text.match(dataRegexp)[1]);
+    const forecastData = JSON.parse(response.text.match(dataRegexp)[1]).props.pageProps.forecastData;
 
     return forecastData;
 }
 
 function extractMostRecentTeamPlayoffOdds(forecastData) {
-  const upcomingWeek = extractUpcomingWeek(forecastData);
-  const mostRecentForecasts = forecastData[`forecast_week${upcomingWeek}`];
-
-  return mostRecentForecasts.map(forecast => {
-    return { abbreviation: forecast.team, playoffOdds: parseFloat(forecast.make_playoffs) };
+  return forecastData.map(forecast => {
+    return { abbreviation: forecast.team.alias, playoffOdds: parseFloat(forecast.make_playoffs) };
   });
 }
 
 function extractUpcomingWeek(forecastData) {
   let highestWeekValue = 0;
 
-  Object.entries(forecastData).forEach(([ key, value ]) => {
-    let keyMatches = key.match(/forecast_week(\d\d?)/);
+  forecastData.forEach(team => {
+    let week = team.week;
 
-    if (keyMatches) {
-      let week = parseInt(keyMatches[1]);
-
-      if (week > highestWeekValue) {
-        highestWeekValue = week;
-      }
+    if (week > highestWeekValue) {
+      highestWeekValue = week;
     }
   });
 
