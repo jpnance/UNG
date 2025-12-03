@@ -1,8 +1,6 @@
 import superagent from 'superagent';
 import 'dotenv/config';
 
-const nytAssetKey = 'bb1c5f697293fe8bb92fa988e655b6389c4e1121';
-
 const disqualifiedPlayers = [];
 
 const teams = [
