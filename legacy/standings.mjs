@@ -4,38 +4,38 @@ import 'dotenv/config';
 const disqualifiedPlayers = [];
 
 const teams = [
-  { abbreviation: 'ARI', name: 'Cardinals' },
-  { abbreviation: 'ATL', name: 'Falcons' },
-  { abbreviation: 'BAL', name: 'Ravens' },
-  { abbreviation: 'BUF', name: 'Bills' },
-  { abbreviation: 'CAR', name: 'Panthers' },
-  { abbreviation: 'CHI', name: 'Bears' },
-  { abbreviation: 'CIN', name: 'Bengals' },
-  { abbreviation: 'CLE', name: 'Browns' },
-  { abbreviation: 'DAL', name: 'Cowboys' },
-  { abbreviation: 'DEN', name: 'Broncos' },
-  { abbreviation: 'DET', name: 'Lions' },
-  { abbreviation: 'GB', name: 'Packers' },
-  { abbreviation: 'HOU', name: 'Texans' },
-  { abbreviation: 'IND', name: 'Colts' },
-  { abbreviation: 'JAX', name: 'Jaguars' },
-  { abbreviation: 'KC', name: 'Chiefs' },
-  { abbreviation: 'LV', name: 'Raiders' },
-  { abbreviation: 'LAC', name: 'Chargers' },
-  { abbreviation: 'LAR', name: 'Rams' },
-  { abbreviation: 'MIA', name: 'Dolphins' },
-  { abbreviation: 'MIN', name: 'Vikings' },
-  { abbreviation: 'NE', name: 'Patriots' },
-  { abbreviation: 'NO', name: 'Saints' },
-  { abbreviation: 'NYG', name: 'Giants' },
-  { abbreviation: 'NYJ', name: 'Jets' },
-  { abbreviation: 'PHI', name: 'Eagles' },
-  { abbreviation: 'PIT', name: 'Steelers' },
-  { abbreviation: 'SF', name: '49ers' },
-  { abbreviation: 'SEA', name: 'Seahawks' },
-  { abbreviation: 'TB', name: 'Buccaneers' },
-  { abbreviation: 'TEN', name: 'Titans' },
-  { abbreviation: 'WAS', name: 'Commanders' }
+  { abbreviation: 'ARI', name: 'Cardinals', pickers: [] },
+  { abbreviation: 'ATL', name: 'Falcons', pickers: [] },
+  { abbreviation: 'BAL', name: 'Ravens', pickers: [] },
+  { abbreviation: 'BUF', name: 'Bills', pickers: [] },
+  { abbreviation: 'CAR', name: 'Panthers', pickers: [] },
+  { abbreviation: 'CHI', name: 'Bears', pickers: [] },
+  { abbreviation: 'CIN', name: 'Bengals', pickers: [] },
+  { abbreviation: 'CLE', name: 'Browns', pickers: [] },
+  { abbreviation: 'DAL', name: 'Cowboys', pickers: [] },
+  { abbreviation: 'DEN', name: 'Broncos', pickers: [] },
+  { abbreviation: 'DET', name: 'Lions', pickers: [] },
+  { abbreviation: 'GB', name: 'Packers', pickers: [] },
+  { abbreviation: 'HOU', name: 'Texans', pickers: [] },
+  { abbreviation: 'IND', name: 'Colts', pickers: [] },
+  { abbreviation: 'JAX', name: 'Jaguars', pickers: [] },
+  { abbreviation: 'KC', name: 'Chiefs', pickers: [] },
+  { abbreviation: 'LV', name: 'Raiders', pickers: [] },
+  { abbreviation: 'LAC', name: 'Chargers', pickers: [] },
+  { abbreviation: 'LAR', name: 'Rams', pickers: [] },
+  { abbreviation: 'MIA', name: 'Dolphins', pickers: [] },
+  { abbreviation: 'MIN', name: 'Vikings', pickers: [] },
+  { abbreviation: 'NE', name: 'Patriots', pickers: [] },
+  { abbreviation: 'NO', name: 'Saints', pickers: [] },
+  { abbreviation: 'NYG', name: 'Giants', pickers: [] },
+  { abbreviation: 'NYJ', name: 'Jets', pickers: [] },
+  { abbreviation: 'PHI', name: 'Eagles', pickers: [] },
+  { abbreviation: 'PIT', name: 'Steelers', pickers: [] },
+  { abbreviation: 'SF', name: '49ers', pickers: [] },
+  { abbreviation: 'SEA', name: 'Seahawks', pickers: [] },
+  { abbreviation: 'TB', name: 'Buccaneers', pickers: [] },
+  { abbreviation: 'TEN', name: 'Titans', pickers: [] },
+  { abbreviation: 'WAS', name: 'Commanders', pickers: [] }
 ];
 
 function printDataAndExit(data) {
@@ -75,6 +75,10 @@ await superagent
         name: team?.name,
         abbreviation: team?.abbreviation,
       });
+
+      if (team) {
+        team.pickers.push(entrant);
+      }
     });
   });
 
@@ -117,6 +121,8 @@ playerScores.forEach(([player, score], i) => {
 
   console.log(`${rank.padStart(4, ' ')} ${player}: ${score.points} point${score.points !== 1 ? 's' : ''} / ${renderTiebreakers(score.tiebreakers)}`);
 });
+
+console.table(teams.toSorted((a, b) => b.playoffOdds - a.playoffOdds).map(team => ({ ...team, playoffOdds: Math.floor(team.playoffOdds * 100), pickerCount: team.pickers.length })), ['name', 'playoffOdds', 'pickerCount']);
 
 function removeDisqualifiedPlayers([player, entry]) {
   return !disqualifiedPlayers.includes(player);
