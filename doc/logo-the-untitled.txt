@@ -1,0 +1,40 @@
+The Untitled Logo Colors
+========================
+
+Primary Theme: Light/Silver Bleak
+---------------------------------
+Left segment:   #606060 (Medium Gray)
+Right segment:  #B0B0B0 (Light Gray/Silver)
+Hand/coin:      #FFFFFF (White)
+
+File: logo-bleak-4.png
+
+
+Alternative Options (Bleak Variations)
+--------------------------------------
+
+Option 1: Dark Grays
+  Left segment:   #1A1A1A (Near Black)
+  Right segment:  #6B6B6B (Gray)
+  Hand/coin:      #FFFFFF (White)
+  File: logo-bleak.png
+
+Option 2: Lighter
+  Left segment:   #3A3A3A (Dark Gray)
+  Right segment:  #888888 (Medium Gray)
+  Hand/coin:      #FFFFFF (White)
+  File: logo-bleak-2.png
+
+Option 3: Medium
+  Left segment:   #505050 (Gray)
+  Right segment:  #9E9E9E (Light Gray)
+  Hand/coin:      #FFFFFF (White)
+  File: logo-bleak-3.png
+
+
+Original Logo Reference
+-----------------------
+Left segment:   #26337A (Navy Blue)
+Right segment:  #FF0000 (Red)
+Hand/coin:      #FFFFFF (White)
+File: logo.png
