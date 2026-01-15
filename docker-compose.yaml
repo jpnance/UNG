@@ -20,7 +20,7 @@ services:
         profiles:
             - main
             - postseason
-        image: mongo:3.6.8
+        image: mongo:8.0.4
         volumes:
             - untitled-data:/data/db
 
@@ -32,6 +32,7 @@ services:
         volumes:
             - .:/app
         command: sh -c "crontab /app/etc/crontab && crond -f"
+        stop_grace_period: 2s
 
 volumes:
     untitled-data:
@@ -40,3 +41,4 @@ volumes:
 networks:
     default:
         name: coinflipper
+        external: true
