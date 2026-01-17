@@ -1,0 +1,20 @@
+#!/bin/bash
+
+container="untitled-mongo"
+db="untitled"
+
+if [ -z "$1" ]; then
+	echo "Usage: runt seed --prod"
+	echo "       runt seed <path-to-dump-file>"
+elif [ "$1" == "--prod" ]; then
+	echo "Fetching latest dump from production..."
+	ssh coinflipper.org cat "~/backups/${db}/${db}.gz" | \
+		docker exec -i ${container} mongorestore --drop --archive --gzip 2>&1 | mrpretty
+else
+	echo "Restoring from $1..."
+	if [[ "$1" == *.gz ]]; then
+		docker exec -i ${container} mongorestore --drop --archive --gzip 2>&1 < "$1" | mrpretty
+	else
+		docker exec -i ${container} mongorestore --drop --archive 2>&1 < "$1" | mrpretty
+	fi
+fi
