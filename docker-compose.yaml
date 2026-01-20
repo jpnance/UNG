@@ -1,6 +1,7 @@
 services:
   web:
     container_name: untitled-web
+    restart: unless-stopped
     depends_on:
       - mongo
     profiles:
@@ -16,6 +17,7 @@ services:
 
   mongo:
     container_name: untitled-mongo
+    restart: unless-stopped
     profiles:
       - main
       - postseason
@@ -25,6 +27,7 @@ services:
 
   cron:
     container_name: untitled-cron
+    restart: unless-stopped
     depends_on:
       - mongo
     profiles:
