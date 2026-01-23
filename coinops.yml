@@ -1,3 +1,4 @@
+slug: untitled
 domain: untitled.coinflipper.org
 port: 8736
 type: node
@@ -10,6 +11,9 @@ up_cmd: "docker compose up -d"
 
 # For backups (omit to skip backups)
 backup_cmd: "docker exec untitled-mongo mongodump --archive --gzip > ~/backups/untitled/untitled.gz"
+
+# For metadata generation (used with monotonic alerting)
+mongo_container: untitled-mongo
 
 # Mongo-specific: collections that should never shrink (for alerting)
 # Only relevant if backup_cmd does a mongodump
