@@ -5,7 +5,7 @@
 # Required: where nginx routes traffic
 domain: untitled.coinflipper.org
 
-# Required: port the app listens on (for nginx proxy_pass)
+# Port the app listens on (for nginx proxy_pass) — required for node apps, omit for static/upload
 port: 8736
 
 # App type: node, static, upload, service
