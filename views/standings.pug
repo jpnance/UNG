@@ -1,0 +1,51 @@
+extends layout.pug
+
+block title
+	if playoffsSet
+		title Standings | The Untitled
+	else
+		title "Standings" | The Untitled
+
+block content
+	div.row
+		div.col-12
+			if playoffsSet
+				h2 Standings
+			else
+				h2 "Standings"
+
+			if commentary
+				div.card.mb-4
+					div.card-body
+						p.mb-0 !{commentary.replace(/\n/g, '<br>')}
+
+			table.table.table-sm.table-hover
+				thead
+					tr
+						th.text-center Rank
+						th Player
+						if playoffsSet
+							th.text-center Score
+							th Tiebreakers
+						else
+							th.text-center Picks
+							th.text-center Projected
+				tbody
+					each standing in standings
+						tr
+							td.text-center #{standing.rank}
+							td #{standing.user.displayName}
+							if playoffsSet
+								td.text-center
+									strong #{standing.score}
+								td
+									if standing.tiebreakers.length > 0
+										each tb, index in standing.tiebreakers
+											if index > 0
+												| , 
+											| #{tb}
+									else
+										span.text-muted -
+							else
+								td.text-center #{standing.pickCount}
+								td.text-center #{standing.projectedScore.toFixed(2)}

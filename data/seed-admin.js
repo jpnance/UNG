@@ -3,29 +3,33 @@ var dotenv = require('dotenv').config({ path: __dirname + '/../.env' });
 var User = require('../models/user');
 
 var mongoose = require('mongoose');
-mongoose.Promise = global.Promise;
-mongoose.connect(process.env.MONGODB_URI, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true }, seedAdmin)
+mongoose.connect(process.env.MONGODB_URI).then(seedAdmin);
 
-function seedAdmin() {
-	var admin = new User({
-		username: 'jpnance',
-		firstName: 'Patrick',
-		lastName: 'Nance',
-		displayName: 'Patrick',
-		admin: true
-	});
+async function seedAdmin() {
+	try {
+		var admin = await User.findOneAndUpdate(
+			{ username: 'jpnance' },
+			{
+				username: 'jpnance',
+				firstName: 'Patrick',
+				lastName: 'Nance',
+				displayName: 'Patrick',
+				admin: true
+			},
+			{ upsert: true, new: true }
+		);
 
-	admin.makeEligibleFor(process.env.SEASON);
+		admin.makeEligibleFor(process.env.SEASON);
+		await admin.save();
 
-	admin.save(function(error) {
-		if (error) {
-			console.log(error);
-		}
-		else {
-			console.log('Done!');
-		}
-
+		console.log('Seeded admin:', admin.username);
+	}
+	catch (error) {
+		console.error('Error seeding admin:', error);
+	}
+	finally {
+		mongoose.disconnect();
 		process.exit();
-	});
+	}
 }
 

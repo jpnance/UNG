@@ -1,0 +1,44 @@
+extends layout.pug
+
+block title
+	title Rules | The Untitled
+
+block content
+	div.row
+		div.col-12.col-lg-10.col-xl-8
+			h2 Rules
+
+			h4 Entry
+			ol
+				li The entry fee is $10.
+				li The intention of the contest is to be a winner-take-all format.
+
+			h4 Regular Season
+			ol(start='3')
+				li Each week, you must pick one NFL team.
+				li You may not pick the same team more than once.
+				li Your pick is due by the scheduled start time of the final game that week (usually, this is Monday at 8:30pm ET, but not always).
+				li You may not pick a team after their game has already started that week.
+				li You are allowed to pick a team on bye but that selection must be made by the deadline defined in Rule 5.
+				li You are allowed to pick a team that has already been eliminated from playoff contention as long as you are in compliance with Rules 5 and 6.
+				li You are not allowed to modify a pick after their game's scheduled start time.
+				li If you do not make all eighteen picks during the season, you forfeit your entry fee and are eliminated from contention.
+
+			h4 Scoring
+			ol(start='11')
+				li At the end of the season, your score is the number of teams you picked who ended up not qualifying for the NFL playoffs. As defined, a perfect score is 18.
+				li The single player with the highest score at the end of the NFL regular season will win the entire pot.
+				li The Nth tiebreaker number for a player will be the Nth week in which they picked a team that ended up making the NFL playoffs.
+				li We'll attempt to break a tie between two or more players by looking at the 1st tiebreaker number; whichever player has the higher 1st tiebreaker number will win; if two or more tied players have the same 1st tiebreaker number, they'll remain tied and the players with lower tiebreaker numbers will be eliminated. We'll then attempt to break the tie between the remaining players by using the 2nd tiebreaker number, then 3rd, and so forth, all the way up through the 18th. If ever a single player remains after evaluating a tiebreaker number, they will win the pot.
+				li If two or more players are tied for the highest score and have exactly identical tiebreaker numbers, all tied players will compete during the NFL playoffs to attempt to determine a sole winner.
+
+			h4 Playoff Tiebreaker
+			ol(start='16')
+				li In the playoff tiebreaker, for every game of the playoffs, you'll pick which team you think is going to lose.
+				li In the playoff tiebreaker, you'll earn one point for every loser that you correctly pick.
+				li In the playoff tiebreaker, your pick for a game will be due by that game's scheduled start time.
+				li In the playoff tiebreaker, if you fail to submit a pick for a game, you'll be eliminated.
+				li In the playoff tiebreaker, at the end of each round of the playoffs, we will eliminate any entrant who has fewer points than the entrant with the most points.
+				li In the playoff tiebreaker, you receive $0 if you get eliminated.
+				li In the playoff tiebreaker, if there is ever only one entrant who hasn't been eliminated, they receive the entirety of what remains in the purse.
+				li In the playoff tiebreaker, if we get through the Super Bowl and still have people tied, they'll split the purse.

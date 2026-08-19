@@ -1,0 +1,12 @@
+#!/bin/bash
+
+echo "Seeding teams..."
+docker compose run --rm web node data/seed-teams.js
+
+echo "Seeding season..."
+docker compose run --rm web node data/seed-season.js
+
+echo "Seeding admin..."
+docker compose run --rm web node data/seed-admin.js
+
+echo "Done!"

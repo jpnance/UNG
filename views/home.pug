@@ -1,0 +1,80 @@
+extends layout.pug
+
+block title
+	title The Untitled
+
+block content
+	if !session
+		//- Blank for now
+
+	else if !session.user.isEligibleFor(process.env.SEASON)
+		div.row
+			div.col-12
+				div.alert.alert-warning
+					| You are not eligible to participate in the #{process.env.SEASON} season. Contact the commissioner to join.
+
+	else
+		div.row
+			div.col-12.col-lg-8
+				h4 Week #{currentWeek}
+
+				if currentWeekPick
+					div.alert.alert-success
+						| Your pick for Week #{currentWeek}: 
+						strong #{currentWeekPick.team}
+						|  
+						a.btn.btn-sm.btn-outline-secondary.ml-2(href='#' data-toggle='modal' data-target='#changePickModal') Change
+
+				else
+					div.alert.alert-warning
+						| You haven't made a pick for Week #{currentWeek} yet.
+
+				h5.mt-4 Available Teams
+				div.row
+					each team in availableTeams
+						div.col-6.col-sm-4.col-md-3.mb-2
+							a.btn.btn-block.btn-outline-primary(href='/pick/' + team.abbreviation)
+								| #{team.abbreviation}
+								br
+								small.text-muted #{team.name}
+
+			div.col-12.col-lg-4.mt-4.mt-lg-0
+				h4 Your Picks
+				if picks.length === 0
+					p.text-muted No picks yet.
+				else
+					table.table.table-sm
+						thead
+							tr
+								th Week
+								th Team
+						tbody
+							- for (var week = 1; week <= 18; week++)
+								- var pick = picks.find(p => p.week === week)
+								tr
+									td.text-center #{week}
+									td.text-center
+										if pick
+											| #{pick.team}
+										else if week < currentWeek
+											span.text-danger Missed
+										else if week === currentWeek
+											span.text-warning Pending
+										else
+											| -
+
+	div#changePickModal.modal.fade
+		div.modal-dialog.modal-lg
+			div.modal-content
+				div.modal-header
+					h5.modal-title Change Week #{currentWeek} Pick
+					button.close(type='button' data-dismiss='modal'): span &times;
+				div.modal-body
+					p Select a new team for Week #{currentWeek}:
+					div.row
+						each team in availableTeams
+							div.col-6.col-sm-4.col-md-3.mb-2
+								a.btn.btn-block.btn-outline-primary(href='/pick/' + team.abbreviation)
+									| #{team.abbreviation}
+									br
+									small.text-muted #{team.name}

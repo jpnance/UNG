@@ -1,0 +1,77 @@
+extends ../layout.pug
+
+block title
+	title Admin: Season | The Untitled
+
+block content
+	h2 Season Management
+
+	if error
+		div.alert.alert-danger #{error}
+
+	else
+		div.row
+			div.col-12.col-lg-6
+				div.card.mb-4
+					div.card-header Current Week
+					div.card-body
+						form(action='/admin/season/week' method='POST')
+							div.form-row.align-items-center
+								div.col-auto
+									select.form-control(name='currentWeek')
+										- for (var w = 1; w <= 18; w++)
+											option(value=w selected=(season.currentWeek === w)) Week #{w}
+								div.col-auto
+									button.btn.btn-primary(type='submit') Update
+
+			div.col-12.col-lg-6
+				div.card.mb-4
+					div.card-header Weekly Commentary
+					div.card-body
+						form(action='/admin/season/commentary' method='POST')
+							div.form-group
+								label(for='week') Week
+								select.form-control(name='week' id='week')
+									- for (var w = 1; w <= 18; w++)
+										option(value=w selected=(season.currentWeek === w)) Week #{w}
+							div.form-group
+								label(for='commentary') Commentary
+								textarea.form-control(name='commentary' id='commentary' rows='5' placeholder='Use @ARI, @BUF, etc. to insert team names with probabilities')
+									if season.weeklyCommentary && season.weeklyCommentary.get(String(season.currentWeek))
+										| #{season.weeklyCommentary.get(String(season.currentWeek))}
+							button.btn.btn-primary(type='submit') Save Commentary
+
+		div.card.mb-4
+			div.card-header Playoff Probabilities
+			div.card-body
+				form(action='/admin/season/probabilities' method='POST')
+					div.row
+						each team in teams
+							div.col-6.col-sm-4.col-md-3.col-lg-2.mb-2
+								label.small(for='prob_' + team.abbreviation) #{team.abbreviation}
+								div.input-group.input-group-sm
+									input.form-control(type='number' step='0.1' min='0' max='100' name='prob_' + team.abbreviation id='prob_' + team.abbreviation value=(standingsMap[team.abbreviation] ? standingsMap[team.abbreviation].playoffProbability : 50))
+									div.input-group-append
+										span.input-group-text %
+					div.mt-3
+						button.btn.btn-primary(type='submit') Update Probabilities
+
+		div.card.mb-4
+			div.card-header Playoff Teams (#{season.playoffTeams ? season.playoffTeams.length : 0}/14)
+			div.card-body
+				form(action='/admin/season/playoffs' method='POST')
+					div.row
+						div.col-12.col-md-6
+							h6 AFC
+							each team in teams.filter(t => t.conference === 'AFC')
+								div.form-check
+									input.form-check-input(type='checkbox' name='playoff_' + team.abbreviation id='playoff_' + team.abbreviation checked=(season.playoffTeams && season.playoffTeams.includes(team.abbreviation)))
+									label.form-check-label(for='playoff_' + team.abbreviation) #{team.location} #{team.name}
+						div.col-12.col-md-6
+							h6 NFC
+							each team in teams.filter(t => t.conference === 'NFC')
+								div.form-check
+									input.form-check-input(type='checkbox' name='playoff_' + team.abbreviation id='playoff_' + team.abbreviation checked=(season.playoffTeams && season.playoffTeams.includes(team.abbreviation)))
+									label.form-check-label(for='playoff_' + team.abbreviation) #{team.location} #{team.name}
+					div.mt-3
+						button.btn.btn-warning(type='submit') Set Playoff Teams

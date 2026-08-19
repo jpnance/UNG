@@ -1,0 +1,57 @@
+body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+img.logo {
+	border-radius: 4px;
+	height: 30px;
+	width: 26px;
+}
+
+.picks-grid {
+	font-size: 0.85rem;
+}
+
+.picks-grid .sticky-col {
+	position: sticky;
+	left: 0;
+	background-color: #fff;
+	z-index: 1;
+	min-width: 120px;
+}
+
+.picks-grid thead .sticky-col {
+	background-color: #fff;
+	z-index: 2;
+}
+
+.picks-grid .week-col {
+	min-width: 45px;
+}
+
+.table-active {
+	background-color: #f8f9fa !important;
+}
+
+.jumbotron {
+	background-color: #f8f9fa;
+}
+
+.btn-outline-primary {
+	border-color: #6c757d;
+	color: #6c757d;
+}
+
+.btn-outline-primary:hover {
+	background-color: #6c757d;
+	border-color: #6c757d;
+	color: #fff;
+}
+
+.alert {
+	margin-bottom: 1rem;
+}
+
+h2, h4, h5 {
+	margin-bottom: 1rem;
+}

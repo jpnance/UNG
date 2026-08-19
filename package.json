@@ -1,11 +1,10 @@
 {
-  "name": "app",
+  "name": "untitled",
   "version": "1.0.0",
-  "description": "",
+  "description": "The Untitled - NFL playoff avoidance pool",
   "main": "index.js",
   "scripts": {
-    "seed-admin": "node data/seed-admin",
-    "seed-teams": "node data/seed-teams",
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -28,6 +27,6 @@
     "jquery": "^3.4.0",
     "mongoose": "^9.1.4",
     "pug": "^3.0.2",
-    "superagent": "^3.8.2"
+    "superagent": "^10.1.1"
   }
 }
