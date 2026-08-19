@@ -8,6 +8,21 @@ img.logo {
 	width: 26px;
 }
 
+img.team-logo {
+	width: 32px;
+	height: 32px;
+}
+
+a.team-btn .team-name {
+	font-size: 1.1rem;
+	font-weight: 500;
+}
+
+a.team-btn.disabled {
+	opacity: 0.4;
+	pointer-events: none;
+}
+
 .picks-grid {
 	font-size: 0.85rem;
 }

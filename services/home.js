@@ -55,6 +55,44 @@ module.exports.show = async function(request, response) {
 	}
 };
 
+module.exports.unpick = async function(request, response) {
+	try {
+		var user = request.session.user;
+		var season = await Season.findOne({ year: process.env.SEASON });
+		var week = season ? season.currentWeek : 1;
+
+		var existingPick = await RegularSeasonPick.findOne({
+			user: user._id,
+			season: process.env.SEASON,
+			week: week
+		});
+
+		if (!existingPick) {
+			return response.redirect('/');
+		}
+
+		var teamGame = await Game.findOne({
+			season: process.env.SEASON,
+			week: week,
+			$or: [
+				{ awayTeam: existingPick.team },
+				{ homeTeam: existingPick.team }
+			]
+		});
+
+		if (teamGame && teamGame.isPastStartTime()) {
+			return response.status(400).send('Cannot unpick after your team\'s game has started');
+		}
+
+		await RegularSeasonPick.deleteOne({ _id: existingPick._id });
+		response.redirect('/');
+	}
+	catch (error) {
+		console.error(error);
+		response.status(500).send(error.message);
+	}
+};
+
 module.exports.makePick = async function(request, response) {
 	try {
 		var user = request.session.user;

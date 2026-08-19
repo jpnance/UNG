@@ -1,0 +1,17 @@
+#!/bin/sh
+
+teams=(
+	'ari' 'atl' 'bal' 'buf' 'car'
+	'chi' 'cin' 'cle' 'dal' 'den'
+	'det' 'gb' 'hou' 'ind' 'jax'
+	'kc' 'lar' 'lac' 'lv' 'mia'
+	'min' 'ne' 'no' 'nyg' 'nyj'
+	'phi' 'pit' 'sf' 'sea' 'tb'
+	'ten' 'wsh'
+)
+
+for team in "${teams[@]}"; do
+	curl "https://a.espncdn.com/combiner/i?img=/i/teamlogos/nfl/500/scoreboard/${team}.png&h=80&w=80" > public/images/${team}.png
+done
+
+mv public/images/wsh.png public/images/was.png

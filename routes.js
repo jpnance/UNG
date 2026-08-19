@@ -12,6 +12,7 @@ module.exports = function(app) {
 	app.get('/login', users.loginPrompt);
 
 	app.get('/pick/:team', requireLogin, home.makePick);
+	app.get('/unpick', requireLogin, home.unpick);
 
 	app.get('/picks', picks.showAll);
 
