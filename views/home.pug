@@ -18,12 +18,7 @@ block content
 			div.col-12.col-lg-8
 				h4 Week #{currentWeek}
 
-				if currentWeekPick
-					div.alert.alert-success
-						| Your pick: 
-						strong #{currentWeekPick.team}
-
-				else
+				if !currentWeekPick
 					div.alert.alert-warning
 						| You haven't made a pick for Week #{currentWeek} yet.
 
