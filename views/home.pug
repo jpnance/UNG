@@ -27,34 +27,32 @@ block content
 					div.alert.alert-warning
 						| You haven't made a pick for Week #{currentWeek} yet.
 
-				-
-					var conferences = ['AFC', 'NFC'];
-					var divisions = ['East', 'North', 'South', 'West'];
+				div.row
+					each conference in conferences
+						div.col-12.col-md-6
+							each division in divisions
+								h6.text-muted.mt-3 #{conference} #{division}
+								table.table.table-sm.mb-0
+									tbody
+										each team in teamsByDivision[conference][division]
+											-
+												var isCurrentPick = currentWeekPick && currentWeekPick.team === team.abbreviation;
+												var isUsed = usedTeams.includes(team.abbreviation) && !isCurrentPick;
+												var standing = standingsMap[team.abbreviation] || { wins: 0, losses: 0, ties: 0 };
+												var record = standing.wins + '-' + standing.losses + (standing.ties ? '-' + standing.ties : '');
 
-				each conference in conferences
-					each division in divisions
-						div.row.mb-3
-							each team in teams.filter(t => t.conference === conference && t.division === division)
-								-
-									var isCurrentPick = currentWeekPick && currentWeekPick.team === team.abbreviation;
-									var isUsed = usedTeams.includes(team.abbreviation) && !isCurrentPick;
-									var btnClass = 'btn-outline-secondary';
-									var href = '/pick/' + team.abbreviation;
-									var disabled = false;
-
-									if (isCurrentPick) {
-										btnClass = 'btn-secondary';
-										href = '/unpick';
-									} else if (isUsed) {
-										btnClass = 'btn-outline-secondary disabled';
-										href = '#';
-										disabled = true;
-									}
-
-								div.col-6.col-md-3.mb-2
-									a.team-btn.btn.btn-block.p-2.d-flex.align-items-center(href=href class=btnClass class=(disabled ? 'disabled' : ''))
-										img.team-logo.mr-2(src='/images/' + team.abbreviation.toLowerCase() + '.png')
-										span.team-name #{team.name}
+											tr(class=(isCurrentPick ? 'table-active' : '') class=(isUsed ? 'text-muted' : ''))
+												td.align-middle.text-center(style='width: 40px')
+													if isCurrentPick
+														a.btn.btn-sm.btn-primary(href='/unpick') ✓
+													else if isUsed
+														span.btn.btn-sm.btn-outline-secondary.disabled ·
+													else
+														a.btn.btn-sm.btn-outline-secondary(href='/pick/' + team.abbreviation) ○
+												td.align-middle
+													img.team-logo.mr-2(src='/images/' + team.abbreviation.toLowerCase() + '.png')
+													span.team-name #{team.name}
+												td.align-middle.text-right #{record}
 
 			div.col-12.col-lg-4.mt-4.mt-lg-0
 				h4 Your Picks

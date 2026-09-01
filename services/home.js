@@ -9,10 +9,36 @@ module.exports.show = async function(request, response) {
 		var season = await Season.findOne({ year: process.env.SEASON });
 		var teams = await Team.find({}).sort({ name: 1 });
 
+		var standingsMap = {};
+		if (season && season.standings) {
+			season.standings.forEach(s => { standingsMap[s.team] = s; });
+		}
+
+		var conferences = ['AFC', 'NFC'];
+		var divisions = ['East', 'North', 'South', 'West'];
+
+		var teamsByDivision = {};
+		conferences.forEach(conf => {
+			teamsByDivision[conf] = {};
+			divisions.forEach(div => {
+				teamsByDivision[conf][div] = teams
+					.filter(t => t.conference === conf && t.division === div)
+					.sort((a, b) => {
+						var aRank = (standingsMap[a.abbreviation] && standingsMap[a.abbreviation].divisionRank) || 99;
+						var bRank = (standingsMap[b.abbreviation] && standingsMap[b.abbreviation].divisionRank) || 99;
+						return aRank - bRank;
+					});
+			});
+		});
+
 		var templateData = {
 			session: request.session,
 			season: season,
 			teams: teams,
+			teamsByDivision: teamsByDivision,
+			conferences: conferences,
+			divisions: divisions,
+			standingsMap: standingsMap,
 			currentWeek: season ? season.currentWeek : 1,
 			picks: [],
 			usedTeams: [],
