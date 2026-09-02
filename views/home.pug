@@ -41,9 +41,9 @@ block content
 													if isCurrentPick
 														a.btn.btn-sm.btn-primary(href='/unpick') ✓
 													else if isUsed
-														span.btn.btn-sm.btn-outline-secondary.disabled ·
+														span.btn.btn-sm.btn-outline-muted.disabled ·
 													else
-														a.btn.btn-sm.btn-outline-secondary(href='/pick/' + team.abbreviation) ○
+														a.btn.btn-sm.btn-outline-muted(href='/pick/' + team.abbreviation) ○
 												td.align-middle
 													div.d-flex.align-items-center
 														img.team-logo.mr-2(src='/images/' + team.abbreviation.toLowerCase() + '.png')

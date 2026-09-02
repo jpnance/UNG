@@ -18,6 +18,17 @@ a.team-btn .team-name {
 	font-weight: 500;
 }
 
+.btn-outline-muted {
+	color: #adb5bd;
+	border-color: #dee2e6;
+}
+
+.btn-outline-muted:hover {
+	color: #6c757d;
+	background-color: #f8f9fa;
+	border-color: #adb5bd;
+}
+
 a.team-btn.disabled {
 	opacity: 0.4;
 	pointer-events: none;
