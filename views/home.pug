@@ -45,8 +45,9 @@ block content
 													else
 														a.btn.btn-sm.btn-outline-secondary(href='/pick/' + team.abbreviation) ○
 												td.align-middle
-													img.team-logo.mr-2(src='/images/' + team.abbreviation.toLowerCase() + '.png')
-													span.team-name #{team.name}
+													div.d-flex.align-items-center
+														img.team-logo.mr-2(src='/images/' + team.abbreviation.toLowerCase() + '.png')
+														span.team-name #{team.name}
 												td.align-middle.text-right #{record}
 
 			div.col-12.col-lg-4.mt-4.mt-lg-0
