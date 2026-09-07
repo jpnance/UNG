@@ -16,6 +16,6 @@
   "#": "For metadata generation (used with monotonic alerting)",
   "mongo_container": "untitled-mongo",
 
-  "#": "Mongo-specific: collections that should never shrink (for alerting). TODO: This surely needs more!",
-  "monotonic": ["users"]
+  "#": "Mongo-specific: collections that should never shrink (for alerting).",
+  "monotonic": ["users", "teams", "seasons", "entries", "regularseasopicks", "playoffpicks", "games"]
 }
