@@ -8,9 +8,9 @@ mongoose.connect(process.env.MONGODB_URI).then(seedAdmin);
 async function seedAdmin() {
 	try {
 		var admin = await User.findOneAndUpdate(
-			{ username: 'jpnance' },
+			{ username: 'patrick-nance' },
 			{
-				username: 'jpnance',
+				username: 'patrick-nance',
 				firstName: 'Patrick',
 				lastName: 'Nance',
 				displayName: 'Patrick',
