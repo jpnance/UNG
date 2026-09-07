@@ -5,12 +5,10 @@ async function attachSession(req, res, next) {
 	req.session = null;
 
 	if (!req.cookies.sessionKey) {
-		console.log('Auth: No sessionKey cookie');
 		return next();
 	}
 
 	try {
-		console.log('Auth: Found sessionKey, validating...');
 		const request = apiRequest
 			.post(process.env.LOGIN_SERVICE_INTERNAL + '/sessions/retrieve')
 			.send({ key: req.cookies.sessionKey });
@@ -22,17 +20,11 @@ async function attachSession(req, res, next) {
 		const response = await request;
 
 		if (response.body?.user) {
-			console.log('Auth: Login service returned user:', response.body.user.username);
 			const user = await User.findOne({ username: response.body.user.username });
 
 			if (user) {
-				console.log('Auth: Found user in DB:', user.username);
 				req.session = { username: user.username, user: user };
-			} else {
-				console.log('Auth: User not found in UNG database');
 			}
-		} else {
-			console.log('Auth: Login service returned no user');
 		}
 	} catch (err) {
 		console.error('Auth service error:', err.message);
