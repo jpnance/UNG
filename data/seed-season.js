@@ -22,7 +22,6 @@ async function seedSeason() {
 			{ year: process.env.SEASON },
 			{
 				year: process.env.SEASON,
-				currentWeek: 1,
 				standings: standings,
 				playoffTeams: [],
 				playoffsStarted: false

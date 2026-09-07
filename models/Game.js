@@ -79,4 +79,39 @@ gameSchema.statics.kickoffSort = function(a, b) {
 	return 0;
 };
 
+gameSchema.statics.getWeek = function(date) {
+	var now = new Date();
+
+	if (date) {
+		now = new Date(date);
+	}
+
+	var start = new Date(process.env.OPENING_WEEK_WEDNESDAY);
+	var days = Math.floor((now - start) / 86400000);
+
+	var week;
+
+	if (days < 7) {
+		week = 1;
+	}
+	else {
+		week = Math.floor((days / 7) + 1);
+	}
+
+	return week;
+};
+
+gameSchema.statics.cleanWeek = function(week) {
+	week = parseInt(week, 10);
+
+	if (isNaN(week) || week < 1) {
+		week = 1;
+	}
+	else if (week > 18) {
+		week = 18;
+	}
+
+	return week;
+};
+
 module.exports = mongoose.model('Game', gameSchema);

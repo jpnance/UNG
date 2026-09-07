@@ -32,6 +32,5 @@ module.exports = function(app) {
 	app.get('/admin/season', requireAdmin, admin.showSeason);
 	app.post('/admin/season/probabilities', requireAdmin, admin.updateProbabilities);
 	app.post('/admin/season/commentary', requireAdmin, admin.updateCommentary);
-	app.post('/admin/season/week', requireAdmin, admin.updateWeek);
 	app.post('/admin/season/playoffs', requireAdmin, admin.setPlayoffTeams);
 };

@@ -14,7 +14,8 @@ module.exports.showAll = async function(request, response) {
 		var teamMap = {};
 		teams.forEach(t => { teamMap[t.abbreviation] = t; });
 
-		var games = await Game.find({ season: process.env.SEASON, week: { $lte: season ? season.currentWeek : 1 } });
+		var currentWeek = Game.cleanWeek(Game.getWeek());
+		var games = await Game.find({ season: process.env.SEASON, week: { $lte: currentWeek } });
 
 		var lockedTeams = new Set();
 		games.forEach(game => {
@@ -59,7 +60,7 @@ module.exports.showAll = async function(request, response) {
 			session: request.session,
 			season: season,
 			pickGrid: pickGrid,
-			currentWeek: season ? season.currentWeek : 1
+			currentWeek: currentWeek
 		});
 	}
 	catch (error) {

@@ -13,7 +13,6 @@ var standingSchema = new Schema({
 
 var seasonSchema = new Schema({
 	year: { type: Number, required: true, unique: true },
-	currentWeek: { type: Number, default: 1 },
 	standings: [standingSchema],
 	playoffTeams: [{ type: String, ref: 'Team' }],
 	weeklyCommentary: { type: Map, of: String },

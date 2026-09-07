@@ -31,6 +31,8 @@ module.exports.show = async function(request, response) {
 			});
 		});
 
+		var currentWeek = Game.cleanWeek(Game.getWeek());
+
 		var templateData = {
 			session: request.session,
 			season: season,
@@ -39,7 +41,7 @@ module.exports.show = async function(request, response) {
 			conferences: conferences,
 			divisions: divisions,
 			standingsMap: standingsMap,
-			currentWeek: season ? season.currentWeek : 1,
+			currentWeek: currentWeek,
 			picks: [],
 			usedTeams: [],
 			availableTeams: [],
@@ -84,8 +86,7 @@ module.exports.show = async function(request, response) {
 module.exports.unpick = async function(request, response) {
 	try {
 		var user = request.session.user;
-		var season = await Season.findOne({ year: process.env.SEASON });
-		var week = season ? season.currentWeek : 1;
+		var week = Game.cleanWeek(Game.getWeek());
 
 		var existingPick = await RegularSeasonPick.findOne({
 			user: user._id,
@@ -123,8 +124,7 @@ module.exports.makePick = async function(request, response) {
 	try {
 		var user = request.session.user;
 		var teamAbbreviation = request.params.team;
-		var season = await Season.findOne({ year: process.env.SEASON });
-		var week = season ? season.currentWeek : 1;
+		var week = Game.cleanWeek(Game.getWeek());
 
 		var team = await Team.findOne({ abbreviation: teamAbbreviation });
 		if (!team) {

@@ -1,6 +1,7 @@
 var User = require('../models/user');
 var Team = require('../models/team');
 var Season = require('../models/Season');
+var Game = require('../models/Game');
 var Entry = require('../models/entry');
 var RegularSeasonPick = require('../models/RegularSeasonPick');
 
@@ -106,9 +107,10 @@ module.exports.show = async function(request, response) {
 			}
 		});
 
+		var currentWeek = Game.cleanWeek(Game.getWeek());
 		var commentary = null;
-		if (season && season.weeklyCommentary && season.currentWeek) {
-			commentary = season.weeklyCommentary.get(String(season.currentWeek));
+		if (season && season.weeklyCommentary) {
+			commentary = season.weeklyCommentary.get(String(currentWeek));
 			if (commentary) {
 				commentary = renderCommentary(commentary, season, teamMap);
 			}

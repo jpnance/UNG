@@ -10,36 +10,23 @@ block content
 		div.alert.alert-danger #{error}
 
 	else
-		div.row
-			div.col-12.col-lg-6
-				div.card.mb-4
-					div.card-header Current Week
-					div.card-body
-						form(action='/admin/season/week' method='POST')
-							div.form-row.align-items-center
-								div.col-auto
-									select.form-control(name='currentWeek')
-										- for (var w = 1; w <= 18; w++)
-											option(value=w selected=(season.currentWeek === w)) Week #{w}
-								div.col-auto
-									button.btn.btn-primary(type='submit') Update
+		p.text-muted Current Week: #{currentWeek}
 
-			div.col-12.col-lg-6
-				div.card.mb-4
-					div.card-header Weekly Commentary
-					div.card-body
-						form(action='/admin/season/commentary' method='POST')
-							div.form-group
-								label(for='week') Week
-								select.form-control(name='week' id='week')
-									- for (var w = 1; w <= 18; w++)
-										option(value=w selected=(season.currentWeek === w)) Week #{w}
-							div.form-group
-								label(for='commentary') Commentary
-								textarea.form-control(name='commentary' id='commentary' rows='5' placeholder='Use @ARI, @BUF, etc. to insert team names with probabilities')
-									if season.weeklyCommentary && season.weeklyCommentary.get(String(season.currentWeek))
-										| #{season.weeklyCommentary.get(String(season.currentWeek))}
-							button.btn.btn-primary(type='submit') Save Commentary
+		div.card.mb-4
+			div.card-header Weekly Commentary
+			div.card-body
+				form(action='/admin/season/commentary' method='POST')
+					div.form-group
+						label(for='week') Week
+						select.form-control(name='week' id='week')
+							- for (var w = 1; w <= 18; w++)
+								option(value=w selected=(currentWeek === w)) Week #{w}
+					div.form-group
+						label(for='commentary') Commentary
+						textarea.form-control(name='commentary' id='commentary' rows='5' placeholder='Use @ARI, @BUF, etc. to insert team names with probabilities')
+							if season.weeklyCommentary && season.weeklyCommentary.get(String(currentWeek))
+								| #{season.weeklyCommentary.get(String(currentWeek))}
+					button.btn.btn-primary(type='submit') Save Commentary
 
 		div.card.mb-4
 			div.card-header Playoff Probabilities
