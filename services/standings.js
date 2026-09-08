@@ -20,21 +20,38 @@ module.exports.show = async function(request, response) {
 		var entryMap = {};
 		entries.forEach(e => { entryMap[e.user.toString()] = e; });
 
+		var currentWeek = Game.cleanWeek(Game.getWeek());
+		var games = await Game.find({ season: seasonYear, week: { $lte: currentWeek } });
+
+		var lockedTeams = new Set();
+		games.forEach(game => {
+			if (game.isPastStartTime()) {
+				lockedTeams.add(game.awayTeam);
+				lockedTeams.add(game.homeTeam);
+			}
+		});
+
+		var currentUserId = request.session && request.session.user ? request.session.user._id.toString() : null;
+
 		var playoffTeams = season ? season.playoffTeams : [];
 		var playoffsSet = playoffTeams.length === 14;
 
 		var standings = users.map(user => {
 			var userPicks = picks.filter(p => p.user.toString() === user._id.toString());
 			var entry = entryMap[user._id.toString()];
+			var isCurrentUser = currentUserId === user._id.toString();
 
 			var score = 0;
 			var projectedScore = 0;
+			var visibleProjectedScore = 0;
 			var tiebreakers = [];
+			var visiblePickCount = 0;
 
 			userPicks.forEach(pick => {
 				var team = teamMap[pick.team];
 				var standing = season ? season.getStanding(pick.team) : null;
 				var probability = standing ? standing.playoffProbability : 50;
+				var isLocked = lockedTeams.has(pick.team);
 
 				if (playoffsSet) {
 					if (!playoffTeams.includes(pick.team)) {
@@ -45,7 +62,12 @@ module.exports.show = async function(request, response) {
 					}
 				}
 				else {
-					projectedScore += (100 - (probability || 50)) / 100;
+					var pickValue = (100 - (probability || 50)) / 100;
+					projectedScore += pickValue;
+					if (isLocked) {
+						visibleProjectedScore += pickValue;
+						visiblePickCount++;
+					}
 				}
 			});
 
@@ -55,9 +77,10 @@ module.exports.show = async function(request, response) {
 				user: user,
 				entry: entry,
 				score: playoffsSet ? score : null,
-				projectedScore: playoffsSet ? null : projectedScore,
+				projectedScore: projectedScore,
+				visibleProjectedScore: playoffsSet ? null : Math.round(isCurrentUser ? projectedScore : visibleProjectedScore),
 				tiebreakers: tiebreakers,
-				pickCount: userPicks.length
+				pickCount: isCurrentUser ? userPicks.length : visiblePickCount
 			};
 		});
 
@@ -107,7 +130,6 @@ module.exports.show = async function(request, response) {
 			}
 		});
 
-		var currentWeek = Game.cleanWeek(Game.getWeek());
 		var commentary = null;
 		if (season && season.weeklyCommentary) {
 			commentary = season.weeklyCommentary.get(String(currentWeek));

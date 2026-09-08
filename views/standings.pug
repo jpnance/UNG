@@ -28,7 +28,6 @@ block content
 							th.text-center Score
 							th Tiebreakers
 						else
-							th.text-center Picks
 							th.text-center Projected
 				tbody
 					each standing in standings
@@ -47,5 +46,4 @@ block content
 									else
 										span.text-muted -
 							else
-								td.text-center #{standing.pickCount}
-								td.text-center #{standing.projectedScore.toFixed(2)}
+								td.text-center #{standing.visibleProjectedScore}
