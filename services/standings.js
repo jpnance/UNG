@@ -99,7 +99,7 @@ module.exports.show = async function(request, response) {
 		}
 		else {
 			standings.sort((a, b) => {
-				if (b.projectedScore !== a.projectedScore) return b.projectedScore - a.projectedScore;
+				if (b.visibleProjectedScore !== a.visibleProjectedScore) return b.visibleProjectedScore - a.visibleProjectedScore;
 				return a.user.displayName.localeCompare(b.user.displayName);
 			});
 		}
@@ -117,7 +117,7 @@ module.exports.show = async function(request, response) {
 					}
 				}
 				else {
-					if (Math.abs(standing.projectedScore - prev.projectedScore) < 0.001) {
+					if (standing.visibleProjectedScore === prev.visibleProjectedScore) {
 						standing.rank = prev.rank;
 					}
 					else {
