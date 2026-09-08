@@ -5,7 +5,28 @@ block title
 
 block content
 	if !session
-		//- Blank for now
+		div.row
+			each conference in conferences
+				div.col-12.col-md-6
+					each division in divisions
+						h6.text-muted.mt-3 #{conference} #{division}
+						table.table.table-sm.mb-0
+							tbody
+								each team in teamsByDivision[conference][division]
+									-
+										var standing = standingsMap[team.abbreviation] || { wins: 0, losses: 0, ties: 0 };
+										var record = standing.wins + '-' + standing.losses + (standing.ties ? '-' + standing.ties : '');
+										var probability = standing.playoffProbability;
+
+									tr
+										td.align-middle
+											div.d-flex.align-items-center
+												img.team-logo.mr-2(src='/images/' + team.abbreviation.toLowerCase() + '.png')
+												span.team-name #{team.name}
+										td.align-middle.text-right.tabular-nums(style='width: 50px') #{record}
+										td.align-middle.text-right.text-muted.small.tabular-nums(style='width: 55px')
+											if probability != null
+												| #{probability}%
 
 	else if !session.user.isEligibleFor(process.env.SEASON)
 		div.row
