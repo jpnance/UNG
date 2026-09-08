@@ -6,6 +6,11 @@ block title
 block content
 	form.col-12.col-md-8.col-lg-6.col-xl-4(action='/users/add' method='POST')
 		div.form-group
+			label(for='loginUser') Select User from Login Service
+			select.form-control#loginUser
+				option(value='') Loading...
+
+		div.form-group
 			label(for='username') Username
 			input.form-control(type='text' id='username' name='username')
 

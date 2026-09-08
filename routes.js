@@ -29,6 +29,21 @@ module.exports = function(app) {
 	app.get('/users/edit/:username', requireAdmin, users.edit);
 	app.post('/users/edit/:username', requireAdmin, users.update);
 
+	app.get('/api/login-users', requireAdmin, async (request, response) => {
+		const apiRequest = require('superagent');
+
+		const req = apiRequest
+			.get(process.env.LOGIN_SERVICE_INTERNAL + '/api/users')
+			.set('Cookie', 'sessionKey=' + request.cookies.sessionKey);
+
+		if (process.env.NODE_ENV === 'dev') {
+			req.disableTLSCerts();
+		}
+
+		const result = await req;
+		response.json(result.body);
+	});
+
 	app.get('/admin/season', requireAdmin, admin.showSeason);
 	app.post('/admin/season/probabilities', requireAdmin, admin.updateProbabilities);
 	app.post('/admin/season/commentary', requireAdmin, admin.updateCommentary);

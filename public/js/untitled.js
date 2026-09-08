@@ -20,4 +20,30 @@ $(document).ready(function() {
 			}
 		});
 	});
+
+	var $loginUserSelect = $('#loginUser');
+
+	if ($loginUserSelect.length) {
+		$.get('/api/login-users', function(users) {
+			$loginUserSelect.empty().append('<option value="">-- Select a user --</option>');
+
+			users.forEach(function(user) {
+				$loginUserSelect.append(
+					$('<option>')
+						.val(JSON.stringify(user))
+						.text(user.firstName + ' ' + user.lastName + ' (' + user.username + ')')
+				);
+			});
+		});
+
+		$loginUserSelect.on('change', function() {
+			if (!this.value) return;
+
+			var user = JSON.parse(this.value);
+			$('#username').val(user.username);
+			$('#firstName').val(user.firstName);
+			$('#lastName').val(user.lastName);
+			$('#displayName').val(user.firstName);
+		});
+	}
 });
