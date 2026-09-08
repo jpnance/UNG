@@ -17,5 +17,5 @@
   "mongo_container": "untitled-mongo",
 
   "#": "Mongo-specific: collections that should never shrink (for alerting).",
-  "monotonic": ["users", "teams", "seasons", "entries", "regularseasopicks", "playoffpicks", "games"]
+  "monotonic": ["users", "teams", "seasons", "entries", "regularseasonpicks", "playoffpicks", "games"]
 }
