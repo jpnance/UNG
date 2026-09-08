@@ -36,6 +36,9 @@ block content
 												var standing = standingsMap[team.abbreviation] || { wins: 0, losses: 0, ties: 0 };
 												var record = standing.wins + '-' + standing.losses + (standing.ties ? '-' + standing.ties : '');
 
+											-
+												var probability = standing.playoffProbability;
+
 											tr(class=(isCurrentPick ? 'table-active' : '') class=(isUsed ? 'text-muted' : ''))
 												td.align-middle.text-center(style='width: 40px')
 													if isCurrentPick
@@ -48,7 +51,10 @@ block content
 													div.d-flex.align-items-center
 														img.team-logo.mr-2(src='/images/' + team.abbreviation.toLowerCase() + '.png')
 														span.team-name #{team.name}
-												td.align-middle.text-right #{record}
+												td.align-middle.text-right.tabular-nums(style='width: 50px') #{record}
+												td.align-middle.text-right.text-muted.small.tabular-nums(style='width: 55px')
+													if probability != null
+														| #{probability}%
 
 			div.col-12.col-lg-4.mt-4.mt-lg-0
 				h4 Your Picks
