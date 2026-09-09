@@ -2,9 +2,9 @@ extends layout.pug
 
 block title
 	if playoffsSet
-		title Standings | The Untitled
+		+title('Standings')
 	else
-		title "Standings" | The Untitled
+		+title('"Standings"')
 
 block content
 	div.row
