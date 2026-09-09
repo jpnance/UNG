@@ -1,0 +1,6 @@
+#!/bin/bash
+
+container="untitled-mongo"
+db="untitled"
+
+docker exec -it ${container} mongosh ${db}
