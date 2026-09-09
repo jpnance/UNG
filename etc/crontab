@@ -1,1 +1,2 @@
 0 * * * *	/usr/local/bin/node /app/bin/probabilities.js
+*/1 * * * *	/usr/local/bin/node /app/bin/schedule.js update
