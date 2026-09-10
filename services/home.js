@@ -73,6 +73,27 @@ module.exports.show = async function(request, response) {
 			}).sort({ kickoff: 1 });
 
 			templateData.games = games;
+
+			// Determine which teams are locked (game has started)
+			var lockedTeams = new Set();
+			games.forEach(game => {
+				if (game.isPastStartTime()) {
+					lockedTeams.add(game.awayTeam);
+					lockedTeams.add(game.homeTeam);
+				}
+			});
+			templateData.lockedTeams = lockedTeams;
+
+			// Check if current pick is locked
+			var isPickLocked = false;
+			if (currentWeekPick) {
+				isPickLocked = lockedTeams.has(currentWeekPick.team);
+			}
+			templateData.isPickLocked = isPickLocked;
+
+			// Check if all games have started (week deadline passed)
+			var lastGame = games[games.length - 1];
+			templateData.weekDeadlinePassed = lastGame && lastGame.isPastStartTime();
 		}
 
 		response.render('home', templateData);

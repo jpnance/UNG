@@ -3,6 +3,7 @@ var home = require('./services/home');
 var picks = require('./services/picks');
 var standings = require('./services/standings');
 var admin = require('./services/admin');
+var schedule = require('./services/schedule');
 
 var { requireLogin, requireAdmin } = require('./auth/middleware');
 
@@ -18,6 +19,8 @@ module.exports = function(app) {
 
 	app.get('/standings', standings.show);
 	app.get('/standings/:season(\\d{4})', standings.show);
+
+	app.get('/teams/:team', schedule.showTeam);
 
 	app.get('/rules', function(request, response) {
 		response.render('rules', { session: request.session });

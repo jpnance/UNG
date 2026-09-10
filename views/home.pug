@@ -22,7 +22,7 @@ block content
 										td.align-middle
 											div.d-flex.align-items-center
 												img.team-logo.mr-2(src='/images/' + team.abbreviation.toLowerCase() + '.png')
-												span.team-name #{team.name}
+												a.team-name(href='/teams/' + team.abbreviation.toLowerCase()) #{team.name}
 										td.align-middle.text-right.tabular-nums(style='width: 50px') #{record}
 										td.align-middle.text-right.text-muted.small.tabular-nums(style='width: 55px')
 											if probability != null
@@ -35,11 +35,11 @@ block content
 					| You are not eligible to participate in the #{process.env.SEASON} season. Contact the commissioner to join.
 
 	else
-		div.row
+		div.row(class=(isPickLocked ? 'pick-locked' : ''))
 			div.col-12.col-lg-8
 				h4 Week #{currentWeek}
 
-				if !currentWeekPick
+				if !currentWeekPick && !isPickLocked
 					div.alert.alert-warning
 						| You haven't made a pick for Week #{currentWeek} yet.
 
@@ -56,6 +56,7 @@ block content
 												var isUsed = usedTeams.includes(team.abbreviation) && !isCurrentPick;
 												var standing = standingsMap[team.abbreviation] || { wins: 0, losses: 0, ties: 0 };
 												var record = standing.wins + '-' + standing.losses + (standing.ties ? '-' + standing.ties : '');
+												var isTeamLocked = lockedTeams && lockedTeams.has(team.abbreviation);
 
 											-
 												var probability = standing.playoffProbability;
@@ -63,15 +64,21 @@ block content
 											tr(class=(isCurrentPick ? 'table-active' : '') class=(isUsed ? 'text-muted' : ''))
 												td.align-middle.text-center(style='width: 40px')
 													if isCurrentPick
-														a.btn.btn-sm.btn-primary(href='/unpick') ✓
+														if isPickLocked
+															span.btn.btn-sm.btn-secondary.disabled.locked-btn
+																i.fa-solid.fa-lock
+														else
+															a.btn.btn-sm.btn-primary(href='/unpick') ✓
 													else if isUsed
 														span.btn.btn-sm.btn-outline-muted.disabled ·
+													else if isPickLocked || isTeamLocked
+														span.btn.btn-sm.btn-outline-muted.disabled.locked-btn ○
 													else
 														a.btn.btn-sm.btn-outline-muted(href='/pick/' + team.abbreviation) ○
 												td.align-middle
 													div.d-flex.align-items-center
 														img.team-logo.mr-2(src='/images/' + team.abbreviation.toLowerCase() + '.png')
-														span.team-name #{team.name}
+														a.team-name(href='/teams/' + team.abbreviation.toLowerCase()) #{team.name}
 												td.align-middle.text-right.tabular-nums(style='width: 50px') #{record}
 												td.align-middle.text-right.text-muted.small.tabular-nums(style='width: 55px')
 													if probability != null

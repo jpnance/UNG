@@ -17,6 +17,20 @@ img.team-logo {
 	height: 32px;
 }
 
+img.team-logo-lg {
+	width: 64px;
+	height: 64px;
+}
+
+a.team-name {
+	color: inherit;
+	text-decoration: none;
+}
+
+a.team-name:hover {
+	text-decoration: underline;
+}
+
 a.team-btn .team-name {
 	font-size: 1.1rem;
 	font-weight: 500;
@@ -36,6 +50,22 @@ a.team-btn .team-name {
 a.team-btn.disabled {
 	opacity: 0.4;
 	pointer-events: none;
+}
+
+.btn.disabled.locked-btn {
+	pointer-events: auto;
+	cursor: not-allowed;
+}
+
+.btn-outline-muted.disabled.locked-btn:hover {
+	background-color: transparent;
+	color: #adb5bd;
+	border-color: #dee2e6;
+}
+
+.btn-secondary.disabled.locked-btn:hover {
+	background-color: #6c757d;
+	border-color: #6c757d;
 }
 
 .picks-grid {
@@ -85,3 +115,8 @@ a.team-btn.disabled {
 h2, h4, h5 {
 	margin-bottom: 1rem;
 }
+
+.bye-week {
+	color: #aaa;
+}
+
