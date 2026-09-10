@@ -26,7 +26,7 @@ block content
 										td.align-middle.text-right.tabular-nums(style='width: 50px') #{record}
 										td.align-middle.text-right.text-muted.small.tabular-nums(style='width: 55px')
 											if probability != null
-												| #{probability}%
+												| #{probability.toFixed(1)}%
 
 	else if !session.user.isEligibleFor(process.env.SEASON)
 		div.row
@@ -54,6 +54,7 @@ block content
 											-
 												var isCurrentPick = currentWeekPick && currentWeekPick.team === team.abbreviation;
 												var isUsed = usedTeams.includes(team.abbreviation) && !isCurrentPick;
+												var usedInWeek = isUsed ? picks.find(p => p.team === team.abbreviation).week : null;
 												var standing = standingsMap[team.abbreviation] || { wins: 0, losses: 0, ties: 0 };
 												var record = standing.wins + '-' + standing.losses + (standing.ties ? '-' + standing.ties : '');
 												var isTeamLocked = lockedTeams && lockedTeams.has(team.abbreviation);
@@ -61,20 +62,21 @@ block content
 											-
 												var probability = standing.playoffProbability;
 
-											tr(class=(isCurrentPick ? 'table-active' : '') class=(isUsed ? 'text-muted' : ''))
+											tr(class=(isCurrentPick ? 'table-active' : ''))
 												td.align-middle.text-center(style='width: 40px')
 													if isCurrentPick
 														if isPickLocked
-															span.btn.btn-sm.btn-secondary.disabled.locked-btn
+															span.btn.btn-sm.btn-secondary.disabled.pick-btn
 																i.fa-solid.fa-lock
 														else
-															a.btn.btn-sm.btn-primary(href='/unpick') ✓
+															a.btn.btn-sm.btn-primary.pick-btn(href='/unpick') ✓
 													else if isUsed
-														span.btn.btn-sm.btn-outline-muted.disabled ·
-													else if isPickLocked || isTeamLocked
-														span.btn.btn-sm.btn-outline-muted.disabled.locked-btn ○
+														span.btn.btn-sm.btn-outline-muted.disabled.pick-btn #{usedInWeek}
+													else if isTeamLocked
+														span.btn.btn-sm.btn-outline-muted.disabled.pick-btn
+															i.fa-solid.fa-lock
 													else
-														a.btn.btn-sm.btn-outline-muted(href='/pick/' + team.abbreviation) ○
+														a.btn.btn-sm.btn-outline-muted.pick-btn(href='/pick/' + team.abbreviation) ○
 												td.align-middle
 													div.d-flex.align-items-center
 														img.team-logo.mr-2(src='/images/' + team.abbreviation.toLowerCase() + '.png')
@@ -82,7 +84,7 @@ block content
 												td.align-middle.text-right.tabular-nums(style='width: 50px') #{record}
 												td.align-middle.text-right.text-muted.small.tabular-nums(style='width: 55px')
 													if probability != null
-														| #{probability}%
+														| #{probability.toFixed(1)}%
 
 			div.col-12.col-lg-4.mt-4.mt-lg-0
 				h4 Your Picks

@@ -1,14 +1,12 @@
 extends layout.pug
 
 block title
-	+title(team.name + ' Schedule')
+	+title(team.location + ' ' + team.name)
 
 block content
 	div.row
 		div.col-12.col-md-8.col-lg-6
-			div.d-flex.align-items-center.mb-3
-				img.team-logo-lg.mr-3(src='/images/' + team.abbreviation.toLowerCase() + '.png')
-				h2.mb-0 #{team.location} #{team.name}
+			h2 #{team.location} #{team.name}
 
 			table.table.table-sm
 				thead

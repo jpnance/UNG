@@ -17,20 +17,6 @@ img.team-logo {
 	height: 32px;
 }
 
-img.team-logo-lg {
-	width: 64px;
-	height: 64px;
-}
-
-a.team-name {
-	color: inherit;
-	text-decoration: none;
-}
-
-a.team-name:hover {
-	text-decoration: underline;
-}
-
 a.team-btn .team-name {
 	font-size: 1.1rem;
 	font-weight: 500;
@@ -52,21 +38,26 @@ a.team-btn.disabled {
 	pointer-events: none;
 }
 
-.btn.disabled.locked-btn {
+.btn.disabled {
 	pointer-events: auto;
 	cursor: not-allowed;
 }
 
-.btn-outline-muted.disabled.locked-btn:hover {
+.btn-outline-muted.disabled:hover {
 	background-color: transparent;
 	color: #adb5bd;
 	border-color: #dee2e6;
 }
 
-.btn-secondary.disabled.locked-btn:hover {
+.btn-secondary.disabled:hover {
 	background-color: #6c757d;
 	border-color: #6c757d;
 }
+
+.pick-btn {
+	min-width: 32px;
+}
+
 
 .picks-grid {
 	font-size: 0.85rem;
