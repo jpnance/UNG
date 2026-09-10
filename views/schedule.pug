@@ -28,7 +28,7 @@ block content
 								if game.isBye
 									| Bye
 								else
-									a(href='/teams/' + game.opponent.toLowerCase()) #{game.opponentName}
+									a(href='/teams/' + game.opponent) #{game.opponentName}
 							td.text-center
 								if game.isBye
 									| -
