@@ -44,7 +44,7 @@ gameSchema.methods.isPastStartTime = function() {
 };
 
 gameSchema.methods.isFinal = function() {
-	return this.status.code === 'final';
+	return this.status.code === 'STATUS_FINAL';
 };
 
 gameSchema.methods.getLoser = function() {
