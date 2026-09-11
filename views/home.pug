@@ -75,6 +75,8 @@ block content
 													else if isTeamLocked
 														span.btn.btn-sm.btn-outline-muted.disabled.pick-btn
 															i.fa-solid.fa-lock
+													else if isPickLocked
+														span.btn.btn-sm.btn-outline-muted.disabled.pick-btn ○
 													else
 														a.btn.btn-sm.btn-outline-muted.pick-btn(href='/pick/' + team.abbreviation) ○
 												td.align-middle
