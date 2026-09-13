@@ -40,8 +40,8 @@ async function fetchProbabilities() {
 			console.log(abbreviation, playoffProbability !== null ? playoffProbability.toFixed(1) + '%' : 'N/A');
 		});
 
-		if (process.argv.includes('--dry-run')) {
-			console.log('\nDry run. Omit --dry-run to save to database.');
+		if (!process.argv.includes('update')) {
+			console.log('\nDry run. Pass "update" to save to database.');
 			mongoose.disconnect();
 			return;
 		}

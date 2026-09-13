@@ -1,4 +1,4 @@
-0 * * * *	/usr/local/bin/node /app/bin/probabilities.js
+*/15 * * * *	/usr/local/bin/node /app/bin/probabilities.js update
 */1 * * * *	/usr/local/bin/node /app/bin/schedule.js update
 */1 * * * *	/usr/local/bin/node /app/bin/standings.js update
 */1 * * * *	/usr/local/bin/node /app/bin/scores.js update
