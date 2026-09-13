@@ -4,6 +4,64 @@ var Game = require('../models/Game');
 var Entry = require('../models/entry');
 var RegularSeasonPick = require('../models/RegularSeasonPick');
 
+var LIVE_STATUSES = ['STATUS_IN_PROGRESS', 'STATUS_END_PERIOD', 'STATUS_HALFTIME'];
+
+function formatKickoff(kickoff) {
+	if (!kickoff) {
+		return '';
+	}
+
+	var parts = new Intl.DateTimeFormat('en-US', {
+		timeZone: 'America/New_York',
+		weekday: 'short',
+		hour: 'numeric',
+		minute: '2-digit',
+		hour12: true
+	}).formatToParts(new Date(kickoff));
+
+	var weekday = parts.find(p => p.type === 'weekday').value;
+	var hour = parts.find(p => p.type === 'hour').value;
+	var minute = parts.find(p => p.type === 'minute').value;
+	var period = parts.find(p => p.type === 'dayPeriod').value.toLowerCase().replace(/\./g, '');
+	var time = minute === '00' ? hour + period : hour + ':' + minute + period;
+
+	return weekday + ' ' + time + ' ET';
+}
+
+function matchupForTeam(game, teamAbbreviation) {
+	var isHome = game.homeTeam === teamAbbreviation;
+	var opponent = isHome ? game.awayTeam : game.homeTeam;
+	var teamScore = isHome ? game.homeScore : game.awayScore;
+	var opponentScore = isHome ? game.awayScore : game.homeScore;
+	var hasScores = teamScore != null && opponentScore != null;
+	var statusCode = game.status && game.status.code;
+	var matchup = {
+		location: isHome ? 'vs' : '@',
+		opponent: opponent,
+		detail: formatKickoff(game.kickoff),
+		resultClass: ''
+	};
+
+	if (game.isFinal() && hasScores) {
+		if (teamScore > opponentScore) {
+			matchup.detail = 'W ' + teamScore + '-' + opponentScore;
+			matchup.resultClass = 'text-success';
+		}
+		else if (teamScore < opponentScore) {
+			matchup.detail = 'L ' + teamScore + '-' + opponentScore;
+			matchup.resultClass = 'text-danger';
+		}
+		else {
+			matchup.detail = 'T ' + teamScore + '-' + opponentScore;
+		}
+	}
+	else if ((LIVE_STATUSES.includes(statusCode) || game.isPastStartTime()) && hasScores) {
+		matchup.detail = teamScore + '-' + opponentScore;
+	}
+
+	return matchup;
+}
+
 module.exports.show = async function(request, response) {
 	try {
 		var season = await Season.findOne({ year: process.env.SEASON });
@@ -33,6 +91,17 @@ module.exports.show = async function(request, response) {
 
 		var currentWeek = Game.cleanWeek(Game.getWeek());
 
+		var games = await Game.find({
+			season: process.env.SEASON,
+			week: currentWeek
+		}).sort({ kickoff: 1 });
+
+		var matchupsByTeam = {};
+		games.forEach(game => {
+			matchupsByTeam[game.awayTeam] = matchupForTeam(game, game.awayTeam);
+			matchupsByTeam[game.homeTeam] = matchupForTeam(game, game.homeTeam);
+		});
+
 		var templateData = {
 			session: request.session,
 			season: season,
@@ -46,7 +115,8 @@ module.exports.show = async function(request, response) {
 			usedTeams: [],
 			availableTeams: [],
 			currentWeekPick: null,
-			games: []
+			games: games,
+			matchupsByTeam: matchupsByTeam
 		};
 
 		if (request.session && request.session.user) {
@@ -66,13 +136,6 @@ module.exports.show = async function(request, response) {
 
 			var currentWeekPick = picks.find(p => p.week == templateData.currentWeek);
 			templateData.currentWeekPick = currentWeekPick;
-
-			var games = await Game.find({
-				season: process.env.SEASON,
-				week: templateData.currentWeek
-			}).sort({ kickoff: 1 });
-
-			templateData.games = games;
 
 			// Determine which teams are locked (game has started)
 			var lockedTeams = new Set();

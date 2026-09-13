@@ -4,3 +4,12 @@ mixin title(...breadcrumbs)
 			| #{breadcrumb} &laquo;
 			|
 		| The Untitled
+
+mixin weekMatchup(team)
+	- var matchup = matchupsByTeam && matchupsByTeam[team.abbreviation]
+	div.week-matchup.text-muted.tabular-nums
+		if !matchup
+			| Bye
+		else
+			| #{matchup.location} #{matchup.opponent} · 
+			span(class=matchup.resultClass) #{matchup.detail}
