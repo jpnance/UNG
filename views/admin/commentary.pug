@@ -1,0 +1,25 @@
+extends ../layout.pug
+
+block title
+	+title('Commentary', 'Admin')
+
+block content
+	h2 Commentary
+
+	script.
+		window.commentaryData = !{JSON.stringify({ teams: commentaryTeams }).replace(/</g, '\\u003c')};
+
+	form(action='/admin/commentary' method='POST' id='commentaryForm')
+		div.row
+			div.col-12.col-lg-6
+				div.form-group
+					label(for='commentary') Draft
+					textarea.form-control(name='commentary' id='commentary' rows='16' placeholder='@chargers prints the % once; later @lac is just the name. Use @!chargers to force the % again.')= commentary
+			div.col-12.col-lg-6
+				div.form-group.commentary-pane
+					label Email Preview
+					div.commentary-preview.border.rounded.p-3.bg-light#commentaryPreview
+		div.d-flex.align-items-center
+			button.btn.btn-primary.mr-2(type='submit') Save
+			button.btn.btn-outline-primary.mr-3(type='button' id='copyCommentary') Copy for Email
+			span.text-muted.small#commentaryStatus

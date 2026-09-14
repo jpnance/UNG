@@ -43,6 +43,15 @@ html(lang='en' xml:lang='en' xmlns='http://www.w3.org/1999/xhtml')
 						a.nav-link(href='/picks') Picks
 					li.nav-item.py-1
 						a.nav-link(href='/rules') Rules
+					if session && session.user && session.user.admin
+						li.nav-item.dropdown.py-1
+							a.nav-link.dropdown-toggle(href='#' data-toggle='dropdown') Admin
+							div.dropdown-menu.py-0
+								a.dropdown-item(href='/admin/commentary') Commentary
+								a.dropdown-item(href='/admin/season') Season
+								a.dropdown-item(href='/users') Users
+								a.dropdown-item(href='/users/add') Add User
+								a.dropdown-item(href='/users/add') Add User
 					if session
 						li.nav-item.dropdown.py-1
 							a.nav-link.dropdown-toggle(href='#' data-toggle='dropdown')

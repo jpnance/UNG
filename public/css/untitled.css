@@ -116,3 +116,21 @@ h2, h4, h5 {
 	line-height: 1.2;
 }
 
+.commentary-preview {
+	white-space: pre-wrap;
+	min-height: 6rem;
+}
+
+@media (min-width: 992px) {
+	.commentary-pane {
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+	}
+
+	.commentary-pane .commentary-preview {
+		flex: 1;
+		overflow-y: auto;
+	}
+}
+

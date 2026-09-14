@@ -47,8 +47,8 @@ module.exports = function(app) {
 		response.json(result.body);
 	});
 
+	app.get('/admin/commentary', requireAdmin, admin.showCommentary);
+	app.post('/admin/commentary', requireAdmin, admin.updateCommentary);
 	app.get('/admin/season', requireAdmin, admin.showSeason);
-	app.post('/admin/season/probabilities', requireAdmin, admin.updateProbabilities);
-	app.post('/admin/season/commentary', requireAdmin, admin.updateCommentary);
 	app.post('/admin/season/playoffs', requireAdmin, admin.setPlayoffTeams);
 };

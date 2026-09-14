@@ -130,21 +130,12 @@ module.exports.show = async function(request, response) {
 			}
 		});
 
-		var commentary = null;
-		if (season && season.weeklyCommentary) {
-			commentary = season.weeklyCommentary.get(String(currentWeek));
-			if (commentary) {
-				commentary = renderCommentary(commentary, season, teamMap);
-			}
-		}
-
 		response.render('standings', {
 			session: request.session,
 			season: season,
 			seasonYear: seasonYear,
 			standings: standings,
 			playoffsSet: playoffsSet,
-			commentary: commentary,
 			teamMap: teamMap
 		});
 	}
@@ -153,18 +144,3 @@ module.exports.show = async function(request, response) {
 		response.send(error);
 	}
 };
-
-function renderCommentary(text, season, teamMap) {
-	return text.replace(/@([A-Z]{2,3})/g, function(match, abbrev) {
-		var team = teamMap[abbrev];
-		if (!team) return match;
-
-		var standing = season.getStanding(abbrev);
-		var probability = standing ? standing.playoffProbability : null;
-
-		if (probability !== null) {
-			return team.name + ' (' + probability + '%)';
-		}
-		return team.name;
-	});
-}

@@ -15,7 +15,6 @@ var seasonSchema = new Schema({
 	year: { type: Number, required: true, unique: true },
 	standings: [standingSchema],
 	playoffTeams: [{ type: String, ref: 'Team' }],
-	weeklyCommentary: { type: Map, of: String },
 	playoffsStarted: { type: Boolean, default: false }
 });
 
