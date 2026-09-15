@@ -59,10 +59,6 @@ a.team-btn.disabled {
 }
 
 
-.picks-grid {
-	font-size: 0.85rem;
-}
-
 .picks-grid .sticky-col {
 	position: sticky;
 	left: 0;
@@ -71,13 +67,12 @@ a.team-btn.disabled {
 	min-width: 120px;
 }
 
-.picks-grid thead .sticky-col {
-	background-color: #fff;
-	z-index: 2;
+.picks-grid tbody tr:hover .sticky-col {
+	background-color: #ececec;
 }
 
 .picks-grid .week-col {
-	min-width: 45px;
+	min-width: 40px;
 }
 
 .table-active {

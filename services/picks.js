@@ -56,10 +56,39 @@ module.exports.showAll = async function(request, response) {
 			pickGrid.push(row);
 		});
 
+		var teamGrid = teams
+			.slice()
+			.sort((a, b) => a.abbreviation.localeCompare(b.abbreviation))
+			.map(team => ({
+				abbreviation: team.abbreviation,
+				weeks: new Array(18).fill(0),
+				total: 0
+			}));
+
+		var teamIndex = {};
+		teamGrid.forEach(row => { teamIndex[row.abbreviation] = row; });
+
+		pickGrid.forEach(row => {
+			row.weeks.forEach(cell => {
+				if (!cell.teamAbbreviation || !cell.locked) {
+					return;
+				}
+
+				var tally = teamIndex[cell.teamAbbreviation];
+				if (!tally) {
+					return;
+				}
+
+				tally.weeks[cell.week - 1]++;
+				tally.total++;
+			});
+		});
+
 		response.render('picks', {
 			session: request.session,
 			season: season,
 			pickGrid: pickGrid,
+			teamGrid: teamGrid,
 			currentWeek: currentWeek
 		});
 	}
