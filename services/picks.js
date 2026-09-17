@@ -3,10 +3,7 @@ var Team = require('../models/team');
 var Season = require('../models/Season');
 var Game = require('../models/Game');
 var RegularSeasonPick = require('../models/RegularSeasonPick');
-
-function lockKey(week, team) {
-	return week + ':' + team;
-}
+var pickLock = require('../lib/pickLock');
 
 module.exports.showAll = async function(request, response) {
 	try {
@@ -21,13 +18,7 @@ module.exports.showAll = async function(request, response) {
 		var currentWeek = Game.cleanWeek(Game.getWeek());
 		var games = await Game.find({ season: process.env.SEASON, week: { $lte: currentWeek } });
 
-		var lockedPicks = new Set();
-		games.forEach(game => {
-			if (game.isPastStartTime()) {
-				lockedPicks.add(lockKey(game.week, game.awayTeam));
-				lockedPicks.add(lockKey(game.week, game.homeTeam));
-			}
-		});
+		var lockState = pickLock.buildPickLockState(games);
 
 		var pickGrid = [];
 
@@ -50,7 +41,7 @@ module.exports.showAll = async function(request, response) {
 				if (pick) {
 					cell.team = teamMap[pick.team];
 					cell.teamAbbreviation = pick.team;
-					cell.locked = lockedPicks.has(lockKey(pick.week, pick.team));
+					cell.locked = pickLock.isPickLocked(pick.week, pick.team, lockState);
 					cell.visible = cell.locked || (request.session && request.session.user && request.session.user._id.toString() === user._id.toString());
 				}
 

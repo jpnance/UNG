@@ -59,7 +59,7 @@ block content
 												var usedInWeek = isUsed ? picks.find(p => p.team === team.abbreviation).week : null;
 												var standing = standingsMap[team.abbreviation] || { wins: 0, losses: 0, ties: 0 };
 												var record = standing.wins + '-' + standing.losses + (standing.ties ? '-' + standing.ties : '');
-												var isTeamLocked = lockedTeams && lockedTeams.has(team.abbreviation);
+												var isTeamLocked = weekDeadlinePassed || (lockedTeams && lockedTeams.has(team.abbreviation));
 
 											-
 												var probability = standing.playoffProbability;

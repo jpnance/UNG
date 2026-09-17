@@ -3,6 +3,7 @@ var Season = require('../models/Season');
 var Game = require('../models/Game');
 var Entry = require('../models/entry');
 var RegularSeasonPick = require('../models/RegularSeasonPick');
+var pickLock = require('../lib/pickLock');
 
 var LIVE_STATUSES = ['STATUS_IN_PROGRESS', 'STATUS_END_PERIOD', 'STATUS_HALFTIME'];
 
@@ -137,7 +138,6 @@ module.exports.show = async function(request, response) {
 			var currentWeekPick = picks.find(p => p.week == templateData.currentWeek);
 			templateData.currentWeekPick = currentWeekPick;
 
-			// Determine which teams are locked (game has started)
 			var lockedTeams = new Set();
 			games.forEach(game => {
 				if (game.isPastStartTime()) {
@@ -147,16 +147,14 @@ module.exports.show = async function(request, response) {
 			});
 			templateData.lockedTeams = lockedTeams;
 
-			// Check if current pick is locked
+			var weekDeadlinePassed = pickLock.isWeekDeadlinePassed(games);
+			templateData.weekDeadlinePassed = weekDeadlinePassed;
+
 			var isPickLocked = false;
 			if (currentWeekPick) {
-				isPickLocked = lockedTeams.has(currentWeekPick.team);
+				isPickLocked = lockedTeams.has(currentWeekPick.team) || weekDeadlinePassed;
 			}
 			templateData.isPickLocked = isPickLocked;
-
-			// Check if all games have started (week deadline passed)
-			var lastGame = games[games.length - 1];
-			templateData.weekDeadlinePassed = lastGame && lastGame.isPastStartTime();
 		}
 
 		response.render('home', templateData);
@@ -191,8 +189,17 @@ module.exports.unpick = async function(request, response) {
 			]
 		});
 
+		var weekGames = await Game.find({
+			season: process.env.SEASON,
+			week: week
+		});
+
 		if (teamGame && teamGame.isPastStartTime()) {
 			return response.status(400).send('Cannot unpick after your team\'s game has started');
+		}
+
+		if (pickLock.isWeekDeadlinePassed(weekGames)) {
+			return response.status(400).send('Cannot unpick after the deadline for this week has passed');
 		}
 
 		await RegularSeasonPick.deleteOne({ _id: existingPick._id });
