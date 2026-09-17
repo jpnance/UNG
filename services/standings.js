@@ -5,6 +5,10 @@ var Game = require('../models/Game');
 var Entry = require('../models/entry');
 var RegularSeasonPick = require('../models/RegularSeasonPick');
 
+function lockKey(week, team) {
+	return week + ':' + team;
+}
+
 module.exports.show = async function(request, response) {
 	try {
 		var seasonYear = request.params.season || process.env.SEASON;
@@ -23,11 +27,11 @@ module.exports.show = async function(request, response) {
 		var currentWeek = Game.cleanWeek(Game.getWeek());
 		var games = await Game.find({ season: seasonYear, week: { $lte: currentWeek } });
 
-		var lockedTeams = new Set();
+		var lockedPicks = new Set();
 		games.forEach(game => {
 			if (game.isPastStartTime()) {
-				lockedTeams.add(game.awayTeam);
-				lockedTeams.add(game.homeTeam);
+				lockedPicks.add(lockKey(game.week, game.awayTeam));
+				lockedPicks.add(lockKey(game.week, game.homeTeam));
 			}
 		});
 
@@ -51,7 +55,7 @@ module.exports.show = async function(request, response) {
 				var team = teamMap[pick.team];
 				var standing = season ? season.getStanding(pick.team) : null;
 				var probability = standing ? standing.playoffProbability : 50;
-				var isLocked = lockedTeams.has(pick.team);
+				var isLocked = lockedPicks.has(lockKey(pick.week, pick.team));
 
 				if (playoffsSet) {
 					if (!playoffTeams.includes(pick.team)) {

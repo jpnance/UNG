@@ -4,6 +4,10 @@ var Season = require('../models/Season');
 var Game = require('../models/Game');
 var RegularSeasonPick = require('../models/RegularSeasonPick');
 
+function lockKey(week, team) {
+	return week + ':' + team;
+}
+
 module.exports.showAll = async function(request, response) {
 	try {
 		var season = await Season.findOne({ year: process.env.SEASON });
@@ -17,11 +21,11 @@ module.exports.showAll = async function(request, response) {
 		var currentWeek = Game.cleanWeek(Game.getWeek());
 		var games = await Game.find({ season: process.env.SEASON, week: { $lte: currentWeek } });
 
-		var lockedTeams = new Set();
+		var lockedPicks = new Set();
 		games.forEach(game => {
 			if (game.isPastStartTime()) {
-				lockedTeams.add(game.awayTeam);
-				lockedTeams.add(game.homeTeam);
+				lockedPicks.add(lockKey(game.week, game.awayTeam));
+				lockedPicks.add(lockKey(game.week, game.homeTeam));
 			}
 		});
 
@@ -46,7 +50,7 @@ module.exports.showAll = async function(request, response) {
 				if (pick) {
 					cell.team = teamMap[pick.team];
 					cell.teamAbbreviation = pick.team;
-					cell.locked = lockedTeams.has(pick.team);
+					cell.locked = lockedPicks.has(lockKey(pick.week, pick.team));
 					cell.visible = cell.locked || (request.session && request.session.user && request.session.user._id.toString() === user._id.toString());
 				}
 
