@@ -68,19 +68,19 @@ block content
 												td.align-middle.text-center(style='width: 40px')
 													if isCurrentPick
 														if isPickLocked
-															span.btn.btn-sm.btn-secondary.disabled.pick-btn
+															span.btn.btn-sm.btn-secondary.disabled.pick-btn.pick-btn-disabled
 																i.fa-solid.fa-lock
 														else
 															a.btn.btn-sm.btn-primary.pick-btn(href='/unpick') ✓
 													else if isUsed
-														span.btn.btn-sm.btn-outline-muted.disabled.pick-btn #{usedInWeek}
+														span.btn.btn-sm.btn-outline-muted.disabled.pick-btn.pick-btn-disabled #{usedInWeek}
 													else if isTeamLocked
-														span.btn.btn-sm.btn-outline-muted.disabled.pick-btn
+														span.btn.btn-sm.btn-outline-muted.disabled.pick-btn.pick-btn-disabled
 															i.fa-solid.fa-lock
 													else if isPickLocked
-														span.btn.btn-sm.btn-outline-muted.disabled.pick-btn ○
+														span.btn.btn-sm.btn-outline-muted.disabled.pick-btn.pick-btn-disabled ○
 													else
-														a.btn.btn-sm.btn-outline-muted.pick-btn(href='/pick/' + team.abbreviation) ○
+														a.btn.btn-sm.btn-outline-muted.pick-btn.pick-btn-available(href='/pick/' + team.abbreviation) ○
 												td.align-middle
 													div.d-flex.align-items-center
 														img.team-logo.mr-2(src='/images/' + team.abbreviation.toLowerCase() + '.png')

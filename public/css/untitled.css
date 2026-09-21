@@ -58,6 +58,21 @@ a.team-btn.disabled {
 	min-width: 32px;
 }
 
+a.pick-btn.pick-btn-available {
+	color: #495057;
+	border-color: #868e96;
+}
+
+a.pick-btn.pick-btn-available:hover {
+	color: #343a40;
+	border-color: #6c757d;
+	background-color: #f1f3f5;
+}
+
+.pick-btn.pick-btn-disabled {
+	opacity: 0.4;
+}
+
 
 .picks-grid .sticky-col {
 	position: sticky;
