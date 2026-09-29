@@ -16,7 +16,6 @@ block content
 									-
 										var standing = standingsMap[team.abbreviation] || { wins: 0, losses: 0, ties: 0 };
 										var record = standing.wins + '-' + standing.losses + (standing.ties ? '-' + standing.ties : '');
-										var probability = standing.playoffProbability;
 
 									tr
 										td.align-middle
@@ -27,8 +26,7 @@ block content
 													+weekMatchup(team)
 										td.align-middle.text-right.tabular-nums(style='width: 50px') #{record}
 										td.align-middle.text-right.text-muted.small.tabular-nums(style='width: 55px')
-											if probability != null
-												| #{probability.toFixed(1)}%
+											+playoffProbabilityCell(standing)
 
 	else if !session.user.isEligibleFor(process.env.SEASON)
 		div.row
@@ -69,9 +67,6 @@ block content
 												var record = standing.wins + '-' + standing.losses + (standing.ties ? '-' + standing.ties : '');
 												var isTeamLocked = weekDeadlinePassed || (lockedTeams && lockedTeams.has(team.abbreviation));
 
-											-
-												var probability = standing.playoffProbability;
-
 											tr(class=(isCurrentPick ? 'table-active' : ''))
 												td.align-middle.text-center(style='width: 40px')
 													if isCurrentPick
@@ -97,8 +92,7 @@ block content
 															+weekMatchup(team)
 												td.align-middle.text-right.tabular-nums(style='width: 50px') #{record}
 												td.align-middle.text-right.text-muted.small.tabular-nums(style='width: 55px')
-													if probability != null
-														| #{probability.toFixed(1)}%
+													+playoffProbabilityCell(standing)
 
 			div.col-12.col-lg-4.mt-4.mt-lg-0
 				h4 Your Picks

@@ -18,6 +18,10 @@ app.use(attachSession);
 
 app.set('view engine', 'pug');
 
+var playoffDisplay = require('./lib/playoffDisplay');
+
+app.locals.formatPlayoffProbability = playoffDisplay.formatPlayoffProbability;
+
 require('./routes')(app);
 
 var mongoose = require('mongoose');

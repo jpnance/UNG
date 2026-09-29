@@ -3,6 +3,7 @@ var dotenv = require('dotenv').config({ path: __dirname + '/../.env' });
 var request = require('superagent');
 
 var Season = require('../models/Season');
+var espnStandings = require('../lib/espnStandings');
 
 var mongoose = require('mongoose');
 mongoose.connect(process.env.MONGODB_URI);
@@ -40,12 +41,15 @@ async function fetchStandings() {
 						stats[stat.name] = stat.value;
 					});
 
+					var clincherCode = espnStandings.parseClincherCode(entry);
+
 					standingsData[abbreviation] = {
 						wins: stats.wins || 0,
 						losses: stats.losses || 0,
 						ties: stats.ties || 0,
 						divisionRank: divisionRank + 1,
-						conferenceRank: stats.playoffSeed || null
+						conferenceRank: stats.playoffSeed || null,
+						clincherCode: clincherCode
 					};
 
 					console.log(
@@ -53,7 +57,8 @@ async function fetchStandings() {
 						(stats.wins + '-' + stats.losses + (stats.ties ? '-' + stats.ties : '')).padEnd(6),
 						division.name.padEnd(10),
 						'Div:', divisionRank + 1,
-						'Seed:', stats.playoffSeed
+						'Seed:', stats.playoffSeed,
+						clincherCode ? 'Clinch:' + clincherCode : ''
 					);
 				});
 			});
@@ -83,6 +88,12 @@ async function fetchStandings() {
 				standing.ties = data.ties;
 				standing.divisionRank = data.divisionRank;
 				standing.conferenceRank = data.conferenceRank;
+				if (data.clincherCode) {
+					standing.clincherCode = data.clincherCode;
+				}
+				else {
+					standing.set('clincherCode', undefined);
+				}
 				updated++;
 			}
 		});

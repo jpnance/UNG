@@ -5,6 +5,14 @@ mixin title(...breadcrumbs)
 			|
 		| The Untitled
 
+mixin playoffProbabilityCell(standing)
+	- var probability = standing && standing.playoffProbability
+	if probability != null
+		| #{formatPlayoffProbability(probability, standing.clincherCode)}
+		if standing.clincherCode
+			| 
+			span.playoff-clincher #{standing.clincherCode}
+
 mixin weekMatchup(team)
 	- var matchup = matchupsByTeam && matchupsByTeam[team.abbreviation]
 	div.week-matchup.text-muted.tabular-nums

@@ -8,7 +8,8 @@ var standingSchema = new Schema({
 	ties: { type: Number, default: 0 },
 	divisionRank: { type: Number },
 	conferenceRank: { type: Number },
-	playoffProbability: { type: Number, min: 0, max: 100 }
+	playoffProbability: { type: Number, min: 0, max: 100 },
+	clincherCode: { type: String, enum: ['e', 'x', 'y', 'z', '*'] }
 }, { _id: false });
 
 var seasonSchema = new Schema({

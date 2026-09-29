@@ -113,3 +113,4 @@ module.exports.setPlayoffTeams = async function(request, response) {
 		response.status(500).send(error.message);
 	}
 };
+
