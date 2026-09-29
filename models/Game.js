@@ -86,7 +86,7 @@ gameSchema.statics.getWeek = function(date) {
 		now = new Date(date);
 	}
 
-	var start = new Date(process.env.OPENING_WEEK_WEDNESDAY);
+	var start = new Date(process.env.OPENING_WEEK_TUESDAY);
 	var days = Math.floor((now - start) / 86400000);
 
 	var week;
