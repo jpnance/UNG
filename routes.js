@@ -49,6 +49,4 @@ module.exports = function(app) {
 
 	app.get('/admin/commentary', requireAdmin, admin.showCommentary);
 	app.post('/admin/commentary', requireAdmin, admin.updateCommentary);
-	app.get('/admin/season', requireAdmin, admin.showSeason);
-	app.post('/admin/season/playoffs', requireAdmin, admin.setPlayoffTeams);
 };
