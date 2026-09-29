@@ -45,7 +45,6 @@ module.exports.show = async function(request, response) {
 			userPicks.forEach(pick => {
 				var team = teamMap[pick.team];
 				var standing = season ? season.getStanding(pick.team) : null;
-				var probability = standing ? standing.playoffProbability : 50;
 				var isLocked = pickLock.isPickLocked(pick.week, pick.team, lockState);
 
 				if (playoffsSet) {
@@ -56,8 +55,9 @@ module.exports.show = async function(request, response) {
 						tiebreakers.push(pick.week);
 					}
 				}
-				else {
-					var pickValue = (100 - (probability || 50)) / 100;
+				else if (standing != null && standing.playoffProbability != null) {
+					var likelyInPlayoffs = Math.round(standing.playoffProbability / 100);
+					var pickValue = 1 - likelyInPlayoffs;
 					projectedScore += pickValue;
 					if (isLocked) {
 						visibleProjectedScore += pickValue;
@@ -73,7 +73,7 @@ module.exports.show = async function(request, response) {
 				entry: entry,
 				score: playoffsSet ? score : null,
 				projectedScore: projectedScore,
-				visibleProjectedScore: playoffsSet ? null : Math.round(isCurrentUser ? projectedScore : visibleProjectedScore),
+				visibleProjectedScore: playoffsSet ? null : (isCurrentUser ? projectedScore : visibleProjectedScore),
 				tiebreakers: tiebreakers,
 				pickCount: isCurrentUser ? userPicks.length : visiblePickCount
 			};
