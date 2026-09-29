@@ -5,6 +5,7 @@ var Game = require('../models/Game');
 var Entry = require('../models/entry');
 var RegularSeasonPick = require('../models/RegularSeasonPick');
 var pickLock = require('../lib/pickLock');
+var elimination = require('../lib/elimination');
 
 module.exports.show = async function(request, response) {
 	try {
@@ -68,6 +69,8 @@ module.exports.show = async function(request, response) {
 
 			tiebreakers.sort((a, b) => a - b);
 
+			var eliminatedWeek = elimination.findEliminationWeek(userPicks, lockState);
+
 			return {
 				user: user,
 				entry: entry,
@@ -75,12 +78,23 @@ module.exports.show = async function(request, response) {
 				projectedScore: projectedScore,
 				visibleProjectedScore: playoffsSet ? null : (isCurrentUser ? projectedScore : visibleProjectedScore),
 				tiebreakers: tiebreakers,
-				pickCount: isCurrentUser ? userPicks.length : visiblePickCount
+				pickCount: isCurrentUser ? userPicks.length : visiblePickCount,
+				eliminatedWeek: eliminatedWeek,
+				isEliminated: eliminatedWeek != null
 			};
 		});
 
 		if (playoffsSet) {
 			standings.sort((a, b) => {
+				if (a.isEliminated !== b.isEliminated) {
+					return a.isEliminated ? 1 : -1;
+				}
+				if (a.isEliminated && b.isEliminated) {
+					if (a.eliminatedWeek !== b.eliminatedWeek) {
+						return a.eliminatedWeek - b.eliminatedWeek;
+					}
+					return a.user.displayName.localeCompare(b.user.displayName);
+				}
 				if (b.score !== a.score) return b.score - a.score;
 
 				for (var i = 0; i < Math.max(a.tiebreakers.length, b.tiebreakers.length); i++) {
@@ -94,34 +108,72 @@ module.exports.show = async function(request, response) {
 		}
 		else {
 			standings.sort((a, b) => {
+				if (a.isEliminated !== b.isEliminated) {
+					return a.isEliminated ? 1 : -1;
+				}
+				if (a.isEliminated && b.isEliminated) {
+					if (a.eliminatedWeek !== b.eliminatedWeek) {
+						return a.eliminatedWeek - b.eliminatedWeek;
+					}
+					return a.user.displayName.localeCompare(b.user.displayName);
+				}
 				if (b.visibleProjectedScore !== a.visibleProjectedScore) return b.visibleProjectedScore - a.visibleProjectedScore;
 				return a.user.displayName.localeCompare(b.user.displayName);
 			});
 		}
 
-		var rank = 1;
 		standings.forEach((standing, index) => {
-			if (index > 0) {
-				var prev = standings[index - 1];
-				if (playoffsSet) {
-					if (standing.score === prev.score && JSON.stringify(standing.tiebreakers) === JSON.stringify(prev.tiebreakers)) {
-						standing.rank = prev.rank;
-					}
-					else {
-						standing.rank = index + 1;
-					}
+			if (standing.isEliminated) {
+				standing.rank = null;
+				return;
+			}
+
+			if (index === 0) {
+				standing.rank = 1;
+				return;
+			}
+
+			var prev = null;
+			for (var i = index - 1; i >= 0; i--) {
+				if (!standings[i].isEliminated) {
+					prev = standings[i];
+					break;
+				}
+			}
+
+			if (!prev) {
+				standing.rank = 1;
+				return;
+			}
+
+			if (playoffsSet) {
+				if (standing.score === prev.score && JSON.stringify(standing.tiebreakers) === JSON.stringify(prev.tiebreakers)) {
+					standing.rank = prev.rank;
 				}
 				else {
-					if (standing.visibleProjectedScore === prev.visibleProjectedScore) {
-						standing.rank = prev.rank;
-					}
-					else {
-						standing.rank = index + 1;
-					}
+					standing.rank = index + 1;
 				}
 			}
 			else {
-				standing.rank = 1;
+				if (standing.visibleProjectedScore === prev.visibleProjectedScore) {
+					standing.rank = prev.rank;
+				}
+				else {
+					standing.rank = index + 1;
+				}
+			}
+		});
+
+		var lastDisplayedRank = null;
+		standings.forEach(standing => {
+			if (standing.isEliminated) {
+				standing.showRank = false;
+				return;
+			}
+
+			standing.showRank = standing.rank !== lastDisplayedRank;
+			if (standing.showRank) {
+				lastDisplayedRank = standing.rank;
 			}
 		});
 

@@ -4,6 +4,7 @@ var Season = require('../models/Season');
 var Game = require('../models/Game');
 var RegularSeasonPick = require('../models/RegularSeasonPick');
 var pickLock = require('../lib/pickLock');
+var elimination = require('../lib/elimination');
 
 module.exports.showAll = async function(request, response) {
 	try {
@@ -24,8 +25,12 @@ module.exports.showAll = async function(request, response) {
 
 		users.forEach(user => {
 			var userPicks = picks.filter(p => p.user.toString() === user._id.toString());
+			var eliminatedWeek = elimination.findEliminationWeek(userPicks, lockState);
+			var isCurrentUser = request.session && request.session.user && request.session.user._id.toString() === user._id.toString();
 			var row = {
 				user: user,
+				eliminatedWeek: eliminatedWeek,
+				isEliminated: eliminatedWeek != null,
 				weeks: []
 			};
 
@@ -35,14 +40,26 @@ module.exports.showAll = async function(request, response) {
 					week: week,
 					team: null,
 					locked: false,
-					visible: false
+					visible: false,
+					missed: false,
+					afterElimination: eliminatedWeek != null && week > eliminatedWeek
 				};
 
 				if (pick) {
 					cell.team = teamMap[pick.team];
 					cell.teamAbbreviation = pick.team;
 					cell.locked = pickLock.isPickLocked(pick.week, pick.team, lockState);
-					cell.visible = cell.locked || (request.session && request.session.user && request.session.user._id.toString() === user._id.toString());
+					cell.visible = cell.locked || isCurrentUser;
+				}
+				else if (!pick && lockState.weeksPastDeadline.has(week)) {
+					if (eliminatedWeek != null && week > eliminatedWeek) {
+						cell.afterElimination = true;
+						cell.visible = true;
+					}
+					else {
+						cell.missed = true;
+						cell.visible = true;
+					}
 				}
 
 				row.weeks.push(cell);

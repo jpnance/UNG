@@ -37,11 +37,19 @@ block content
 					| You are not eligible to participate in the #{process.env.SEASON} season. Contact the commissioner to join.
 
 	else
+		if isEliminated
+			div.row
+				div.col-12
+					div.alert.alert-secondary
+						| You're out of the pool. You didn't submit a pick for Week #{eliminatedWeek}, so you're eliminated for the rest of the season (
+						a(href='/rules') rules
+						| ). You can still follow along on Picks and Standings.
+
 		div.row(class=(isPickLocked ? 'pick-locked' : ''))
 			div.col-12.col-lg-8
 				h4 Week #{currentWeek}
 
-				if !currentWeekPick && !isPickLocked
+				if !isEliminated && !currentWeekPick && !isPickLocked
 					div.alert.alert-warning
 						| You haven't made a pick for Week #{currentWeek} yet.
 
@@ -107,8 +115,10 @@ block content
 								td.text-center
 									if pick
 										| #{pick.team}
-									else if week < currentWeek
-										span.text-danger Missed
+									else if isEliminated && week > eliminatedWeek
+										span.text-muted —
+									else if week < currentWeek || (isEliminated && week === eliminatedWeek)
+										span.text-danger.pick-missed ×
 									else if week === currentWeek
 										span.text-muted -
 									else

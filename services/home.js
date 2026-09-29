@@ -4,6 +4,7 @@ var Game = require('../models/Game');
 var Entry = require('../models/entry');
 var RegularSeasonPick = require('../models/RegularSeasonPick');
 var pickLock = require('../lib/pickLock');
+var elimination = require('../lib/elimination');
 
 var LIVE_STATUSES = ['STATUS_IN_PROGRESS', 'STATUS_END_PERIOD', 'STATUS_HALFTIME'];
 
@@ -97,6 +98,11 @@ module.exports.show = async function(request, response) {
 			week: currentWeek
 		}).sort({ kickoff: 1 });
 
+		var gamesThroughCurrentWeek = await Game.find({
+			season: process.env.SEASON,
+			week: { $lte: currentWeek }
+		});
+
 		var matchupsByTeam = {};
 		games.forEach(game => {
 			matchupsByTeam[game.awayTeam] = matchupForTeam(game, game.awayTeam);
@@ -150,9 +156,17 @@ module.exports.show = async function(request, response) {
 			var weekDeadlinePassed = pickLock.isWeekDeadlinePassed(games);
 			templateData.weekDeadlinePassed = weekDeadlinePassed;
 
-			var isPickLocked = false;
-			if (currentWeekPick) {
+			var lockState = pickLock.buildPickLockState(gamesThroughCurrentWeek);
+			var eliminatedWeek = elimination.findEliminationWeek(picks, lockState);
+			templateData.eliminatedWeek = eliminatedWeek;
+			templateData.isEliminated = eliminatedWeek != null;
+
+			var isPickLocked = templateData.isEliminated;
+			if (!isPickLocked && currentWeekPick) {
 				isPickLocked = lockedTeams.has(currentWeekPick.team) || weekDeadlinePassed;
+			}
+			else if (!isPickLocked && weekDeadlinePassed) {
+				isPickLocked = true;
 			}
 			templateData.isPickLocked = isPickLocked;
 		}
@@ -169,6 +183,19 @@ module.exports.unpick = async function(request, response) {
 	try {
 		var user = request.session.user;
 		var week = Game.cleanWeek(Game.getWeek());
+
+		var seasonPicks = await RegularSeasonPick.find({
+			user: user._id,
+			season: process.env.SEASON
+		});
+		var gamesThroughWeek = await Game.find({
+			season: process.env.SEASON,
+			week: { $lte: week }
+		});
+		var lockState = pickLock.buildPickLockState(gamesThroughWeek);
+		if (elimination.isEliminated(seasonPicks, lockState)) {
+			return response.status(403).send('You have been eliminated and cannot change picks');
+		}
 
 		var existingPick = await RegularSeasonPick.findOne({
 			user: user._id,
@@ -216,6 +243,19 @@ module.exports.makePick = async function(request, response) {
 		var user = request.session.user;
 		var teamAbbreviation = request.params.team;
 		var week = Game.cleanWeek(Game.getWeek());
+
+		var seasonPicks = await RegularSeasonPick.find({
+			user: user._id,
+			season: process.env.SEASON
+		});
+		var gamesThroughWeek = await Game.find({
+			season: process.env.SEASON,
+			week: { $lte: week }
+		});
+		var lockState = pickLock.buildPickLockState(gamesThroughWeek);
+		if (elimination.isEliminated(seasonPicks, lockState)) {
+			return response.status(403).send('You have been eliminated and cannot make picks');
+		}
 
 		var team = await Team.findOne({ abbreviation: teamAbbreviation });
 		if (!team) {

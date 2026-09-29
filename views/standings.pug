@@ -14,7 +14,7 @@ block content
 			else
 				h2 "Standings"
 
-			table.table.table-sm.table-hover
+			table.table.table-sm
 				thead
 					tr
 						th.text-center Rank
@@ -26,8 +26,12 @@ block content
 							th.text-center Projected
 				tbody
 					each standing in standings
-						tr
-							td.text-center #{standing.rank}
+						tr(class=(standing.isEliminated ? 'entrant-eliminated' : ''))
+							td.text-center
+								if standing.isEliminated
+									span.text-muted E
+								else if standing.showRank
+									| #{standing.rank}
 							td #{standing.user.displayName}
 							if playoffsSet
 								td.text-center
@@ -41,4 +45,8 @@ block content
 									else
 										span.text-muted -
 							else
-								td.text-center #{standing.visibleProjectedScore}
+								td.text-center
+									if standing.isEliminated
+										span.text-muted -
+									else
+										| #{standing.visibleProjectedScore}
