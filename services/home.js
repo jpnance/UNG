@@ -64,6 +64,97 @@ function matchupForTeam(game, teamAbbreviation) {
 	return matchup;
 }
 
+function wantsPickJson(request) {
+	return request.xhr || request.accepts('json');
+}
+
+function respondPickError(request, response, statusCode, message) {
+	if (wantsPickJson(request)) {
+		return response.status(statusCode).json({ ok: false, error: message });
+	}
+
+	return response.status(statusCode).send(message);
+}
+
+function serializePickState(state) {
+	return {
+		currentWeek: state.currentWeek,
+		picks: state.picks.map(p => ({ week: p.week, team: p.team })),
+		currentWeekPick: state.currentWeekPick
+			? { week: state.currentWeekPick.week, team: state.currentWeekPick.team }
+			: null,
+		isPickLocked: state.isPickLocked,
+		isEliminated: state.isEliminated,
+		eliminatedWeek: state.eliminatedWeek,
+		weekDeadlinePassed: state.weekDeadlinePassed,
+		lockedTeams: Array.from(state.lockedTeams)
+	};
+}
+
+async function respondPickSuccess(request, response, user) {
+	if (wantsPickJson(request)) {
+		var state = await loadUserPickState(user);
+		return response.json({ ok: true, ...serializePickState(state) });
+	}
+
+	return response.redirect('/');
+}
+
+async function loadUserPickState(user) {
+	var currentWeek = Game.cleanWeek(Game.getWeek());
+
+	var picks = await RegularSeasonPick.find({
+		user: user._id,
+		season: process.env.SEASON
+	}).sort({ week: 1 });
+
+	var usedTeams = picks.map(p => p.team);
+	var currentWeekPick = picks.find(p => p.week == currentWeek);
+
+	var games = await Game.find({
+		season: process.env.SEASON,
+		week: currentWeek
+	}).sort({ kickoff: 1 });
+
+	var gamesThroughCurrentWeek = await Game.find({
+		season: process.env.SEASON,
+		week: { $lte: currentWeek }
+	});
+
+	var lockedTeams = new Set();
+	games.forEach(game => {
+		if (game.isPastStartTime()) {
+			lockedTeams.add(game.awayTeam);
+			lockedTeams.add(game.homeTeam);
+		}
+	});
+
+	var weekDeadlinePassed = pickLock.isWeekDeadlinePassed(games);
+	var lockState = pickLock.buildPickLockState(gamesThroughCurrentWeek);
+	var eliminatedWeek = elimination.findEliminationWeek(picks, lockState);
+	var isEliminated = eliminatedWeek != null;
+
+	var isPickLocked = isEliminated;
+	if (!isPickLocked && currentWeekPick) {
+		isPickLocked = lockedTeams.has(currentWeekPick.team) || weekDeadlinePassed;
+	}
+	else if (!isPickLocked && weekDeadlinePassed) {
+		isPickLocked = true;
+	}
+
+	return {
+		currentWeek: currentWeek,
+		picks: picks,
+		usedTeams: usedTeams,
+		currentWeekPick: currentWeekPick,
+		lockedTeams: lockedTeams,
+		weekDeadlinePassed: weekDeadlinePassed,
+		eliminatedWeek: eliminatedWeek,
+		isEliminated: isEliminated,
+		isPickLocked: isPickLocked
+	};
+}
+
 module.exports.show = async function(request, response) {
 	try {
 		var season = await Season.findOne({ year: process.env.SEASON });
@@ -98,11 +189,6 @@ module.exports.show = async function(request, response) {
 			week: currentWeek
 		}).sort({ kickoff: 1 });
 
-		var gamesThroughCurrentWeek = await Game.find({
-			season: process.env.SEASON,
-			week: { $lte: currentWeek }
-		});
-
 		var matchupsByTeam = {};
 		games.forEach(game => {
 			matchupsByTeam[game.awayTeam] = matchupForTeam(game, game.awayTeam);
@@ -127,48 +213,9 @@ module.exports.show = async function(request, response) {
 		};
 
 		if (request.session && request.session.user) {
-			var user = request.session.user;
-
-			var picks = await RegularSeasonPick.find({
-				user: user._id,
-				season: process.env.SEASON
-			}).sort({ week: 1 });
-
-			templateData.picks = picks;
-
-			var usedTeams = picks.map(p => p.team);
-			templateData.usedTeams = usedTeams;
-
-			templateData.availableTeams = teams.filter(t => !usedTeams.includes(t.abbreviation));
-
-			var currentWeekPick = picks.find(p => p.week == templateData.currentWeek);
-			templateData.currentWeekPick = currentWeekPick;
-
-			var lockedTeams = new Set();
-			games.forEach(game => {
-				if (game.isPastStartTime()) {
-					lockedTeams.add(game.awayTeam);
-					lockedTeams.add(game.homeTeam);
-				}
-			});
-			templateData.lockedTeams = lockedTeams;
-
-			var weekDeadlinePassed = pickLock.isWeekDeadlinePassed(games);
-			templateData.weekDeadlinePassed = weekDeadlinePassed;
-
-			var lockState = pickLock.buildPickLockState(gamesThroughCurrentWeek);
-			var eliminatedWeek = elimination.findEliminationWeek(picks, lockState);
-			templateData.eliminatedWeek = eliminatedWeek;
-			templateData.isEliminated = eliminatedWeek != null;
-
-			var isPickLocked = templateData.isEliminated;
-			if (!isPickLocked && currentWeekPick) {
-				isPickLocked = lockedTeams.has(currentWeekPick.team) || weekDeadlinePassed;
-			}
-			else if (!isPickLocked && weekDeadlinePassed) {
-				isPickLocked = true;
-			}
-			templateData.isPickLocked = isPickLocked;
+			var pickState = await loadUserPickState(request.session.user);
+			Object.assign(templateData, pickState);
+			templateData.availableTeams = teams.filter(t => !pickState.usedTeams.includes(t.abbreviation));
 		}
 
 		response.render('home', templateData);
@@ -194,7 +241,7 @@ module.exports.unpick = async function(request, response) {
 		});
 		var lockState = pickLock.buildPickLockState(gamesThroughWeek);
 		if (elimination.isEliminated(seasonPicks, lockState)) {
-			return response.status(403).send('You have been eliminated and cannot change picks');
+			return respondPickError(request, response, 403, 'You have been eliminated and cannot change picks');
 		}
 
 		var existingPick = await RegularSeasonPick.findOne({
@@ -204,7 +251,7 @@ module.exports.unpick = async function(request, response) {
 		});
 
 		if (!existingPick) {
-			return response.redirect('/');
+			return respondPickSuccess(request, response, user);
 		}
 
 		var teamGame = await Game.findOne({
@@ -222,19 +269,19 @@ module.exports.unpick = async function(request, response) {
 		});
 
 		if (teamGame && teamGame.isPastStartTime()) {
-			return response.status(400).send('Cannot unpick after your team\'s game has started');
+			return respondPickError(request, response, 400, 'Cannot unpick after your team\'s game has started');
 		}
 
 		if (pickLock.isWeekDeadlinePassed(weekGames)) {
-			return response.status(400).send('Cannot unpick after the deadline for this week has passed');
+			return respondPickError(request, response, 400, 'Cannot unpick after the deadline for this week has passed');
 		}
 
 		await RegularSeasonPick.deleteOne({ _id: existingPick._id });
-		response.redirect('/');
+		return respondPickSuccess(request, response, user);
 	}
 	catch (error) {
 		console.error(error);
-		response.status(500).send(error.message);
+		return respondPickError(request, response, 500, error.message);
 	}
 };
 
@@ -254,12 +301,12 @@ module.exports.makePick = async function(request, response) {
 		});
 		var lockState = pickLock.buildPickLockState(gamesThroughWeek);
 		if (elimination.isEliminated(seasonPicks, lockState)) {
-			return response.status(403).send('You have been eliminated and cannot make picks');
+			return respondPickError(request, response, 403, 'You have been eliminated and cannot make picks');
 		}
 
 		var team = await Team.findOne({ abbreviation: teamAbbreviation });
 		if (!team) {
-			return response.status(400).send('Invalid team');
+			return respondPickError(request, response, 400, 'Invalid team');
 		}
 
 		var existingPickForTeam = await RegularSeasonPick.findOne({
@@ -269,7 +316,7 @@ module.exports.makePick = async function(request, response) {
 		});
 
 		if (existingPickForTeam) {
-			return response.status(400).send('You have already used this team');
+			return respondPickError(request, response, 400, 'You have already used this team');
 		}
 
 		var teamGame = await Game.findOne({
@@ -282,7 +329,7 @@ module.exports.makePick = async function(request, response) {
 		});
 
 		if (teamGame && teamGame.isPastStartTime()) {
-			return response.status(400).send('This team\'s game has already started');
+			return respondPickError(request, response, 400, 'This team\'s game has already started');
 		}
 
 		var weekDeadlineGame = await Game.findOne({
@@ -291,7 +338,7 @@ module.exports.makePick = async function(request, response) {
 		}).sort({ kickoff: -1 });
 
 		if (weekDeadlineGame && weekDeadlineGame.isPastStartTime()) {
-			return response.status(400).send('The deadline for this week has passed');
+			return respondPickError(request, response, 400, 'The deadline for this week has passed');
 		}
 
 		var existingPickForWeek = await RegularSeasonPick.findOne({
@@ -311,7 +358,7 @@ module.exports.makePick = async function(request, response) {
 			});
 
 			if (existingTeamGame && existingTeamGame.isPastStartTime()) {
-				return response.status(400).send('You cannot change your pick after your team\'s game has started');
+				return respondPickError(request, response, 400, 'You cannot change your pick after your team\'s game has started');
 			}
 
 			existingPickForWeek.team = teamAbbreviation;
@@ -328,10 +375,10 @@ module.exports.makePick = async function(request, response) {
 			await pick.save();
 		}
 
-		response.redirect('/');
+		return respondPickSuccess(request, response, user);
 	}
 	catch (error) {
 		console.error(error);
-		response.status(500).send(error.message);
+		return respondPickError(request, response, 500, error.message);
 	}
 };

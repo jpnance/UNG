@@ -43,12 +43,15 @@ block content
 						a(href='/rules') rules
 						| ). You can still follow along on Picks and Standings.
 
-		div.row(class=(isPickLocked ? 'pick-locked' : ''))
+		div#home-picks-board.row(class=(isPickLocked ? 'pick-locked' : ''))
 			div.col-12.col-lg-8
 				h4 Week #{currentWeek}
 
 				if !isEliminated && !currentWeekPick && !isPickLocked
-					div.alert.alert-warning
+					div#home-no-pick-alert.alert.alert-warning
+						| You haven't made a pick for Week #{currentWeek} yet.
+				else
+					div#home-no-pick-alert.alert.alert-warning.d-none
 						| You haven't made a pick for Week #{currentWeek} yet.
 
 				div.row
@@ -67,7 +70,7 @@ block content
 												var record = standing.wins + '-' + standing.losses + (standing.ties ? '-' + standing.ties : '');
 												var isTeamLocked = weekDeadlinePassed || (lockedTeams && lockedTeams.has(team.abbreviation));
 
-											tr(class=(isCurrentPick ? 'table-active' : ''))
+											tr(data-team=team.abbreviation class=(isCurrentPick ? 'table-active' : ''))
 												td.align-middle.text-center(style='width: 40px')
 													if isCurrentPick
 														if isPickLocked
@@ -104,9 +107,9 @@ block content
 					tbody
 						- for (var week = 1; week <= 18; week++)
 							- var pick = picks.find(p => p.week === week)
-							tr(class=(week === currentWeek ? 'table-active' : ''))
+							tr(data-week=week class=(week === currentWeek ? 'table-active' : ''))
 								td.text-center #{week}
-								td.text-center
+								td.text-center.home-your-pick-cell
 									if pick
 										| #{pick.team}
 									else if isEliminated && week > eliminatedWeek

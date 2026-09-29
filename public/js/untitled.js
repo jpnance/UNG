@@ -152,4 +152,136 @@ $(document).ready(function() {
 			});
 		});
 	}
+
+	var $homePicksBoard = $('#home-picks-board');
+
+	if ($homePicksBoard.length) {
+		var showPickError = function(message) {
+			$('#modal .modal-body').text(message || 'Something went wrong');
+			$('#modal').modal('show');
+		};
+
+		var pickButtonHtml = function(teamAbbr, state) {
+			var currentTeam = state.currentWeekPick && state.currentWeekPick.team;
+			var isCurrentPick = currentTeam === teamAbbr;
+			var isUsed = false;
+			var usedInWeek = null;
+
+			state.picks.forEach(function(pick) {
+				if (pick.team === teamAbbr) {
+					if (isCurrentPick) {
+						return;
+					}
+
+					isUsed = true;
+					usedInWeek = pick.week;
+				}
+			});
+
+			var lockedSet = {};
+			(state.lockedTeams || []).forEach(function(team) {
+				lockedSet[team] = true;
+			});
+
+			var isTeamLocked = state.weekDeadlinePassed || lockedSet[teamAbbr];
+
+			if (isCurrentPick) {
+				if (state.isPickLocked) {
+					return '<span class="btn btn-sm btn-secondary disabled pick-btn pick-btn-disabled"><i class="fa-solid fa-lock"></i></span>';
+				}
+
+				return '<a class="btn btn-sm btn-primary pick-btn" href="/unpick">✓</a>';
+			}
+
+			if (isUsed) {
+				return '<span class="btn btn-sm btn-outline-muted disabled pick-btn pick-btn-disabled">' + usedInWeek + '</span>';
+			}
+
+			if (isTeamLocked) {
+				return '<span class="btn btn-sm btn-outline-muted disabled pick-btn pick-btn-disabled"><i class="fa-solid fa-lock"></i></span>';
+			}
+
+			if (state.isPickLocked) {
+				return '<span class="btn btn-sm btn-outline-muted disabled pick-btn pick-btn-disabled">○</span>';
+			}
+
+			return '<a class="btn btn-sm btn-outline-muted pick-btn pick-btn-available" href="/pick/' + teamAbbr + '">○</a>';
+		};
+
+		var applyHomePickState = function(state) {
+			$homePicksBoard.toggleClass('pick-locked', !!state.isPickLocked);
+
+			var showNoPickAlert = !state.isEliminated && !state.currentWeekPick && !state.isPickLocked;
+			$('#home-no-pick-alert').toggleClass('d-none', !showNoPickAlert);
+
+			$homePicksBoard.find('tr[data-team]').each(function() {
+				var $row = $(this);
+				var teamAbbr = $row.attr('data-team');
+				var isCurrentPick = !!(state.currentWeekPick && state.currentWeekPick.team === teamAbbr);
+
+				$row.toggleClass('table-active', isCurrentPick);
+				$row.find('td').first().html(pickButtonHtml(teamAbbr, state));
+			});
+
+			$homePicksBoard.find('tr[data-week]').each(function() {
+				var $row = $(this);
+				var week = parseInt($row.attr('data-week'), 10);
+				var pick = state.picks.find(function(p) { return p.week === week; });
+				var $cell = $row.find('.home-your-pick-cell');
+				var isCurrentWeek = week === Number(state.currentWeek);
+
+				$row.toggleClass('table-active', isCurrentWeek);
+
+				if (pick) {
+					$cell.text(pick.team);
+				}
+				else if (state.isEliminated && week > state.eliminatedWeek) {
+					$cell.html('<span class="text-muted">—</span>');
+				}
+				else if (week < state.currentWeek || (state.isEliminated && week === state.eliminatedWeek)) {
+					$cell.html('<span class="text-danger pick-missed">×</span>');
+				}
+				else {
+					$cell.empty();
+				}
+			});
+		};
+
+		$homePicksBoard.on('click', 'a.pick-btn', function(e) {
+			var href = $(this).attr('href');
+
+			if (!href || (href.indexOf('/pick/') !== 0 && href !== '/unpick')) {
+				return;
+			}
+
+			e.preventDefault();
+
+			if ($homePicksBoard.hasClass('picking')) {
+				return;
+			}
+
+			$homePicksBoard.addClass('picking');
+
+			$.ajax({
+				url: href,
+				dataType: 'json',
+				headers: { Accept: 'application/json' }
+			})
+				.done(function(data) {
+					if (data && data.ok) {
+						applyHomePickState(data);
+						return;
+					}
+
+					showPickError((data && data.error) || 'Something went wrong');
+				})
+				.fail(function(xhr) {
+					var message = (xhr.responseJSON && xhr.responseJSON.error) || xhr.responseText || 'Something went wrong';
+					showPickError(message);
+				})
+				.always(function() {
+					$homePicksBoard.removeClass('picking');
+				});
+		});
+	}
 });
