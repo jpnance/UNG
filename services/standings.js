@@ -27,26 +27,22 @@ module.exports.show = async function(request, response) {
 
 		var lockState = pickLock.buildPickLockState(games);
 
-		var currentUserId = request.session && request.session.user ? request.session.user._id.toString() : null;
-
 		var playoffTeams = season ? season.playoffTeams : [];
 		var playoffsSet = playoffTeams.length === 14;
 
 		var standings = users.map(user => {
 			var userPicks = picks.filter(p => p.user.toString() === user._id.toString());
 			var entry = entryMap[user._id.toString()];
-			var isCurrentUser = currentUserId === user._id.toString();
 
 			var score = 0;
 			var projectedScore = 0;
-			var visibleProjectedScore = 0;
 			var tiebreakers = [];
-			var visiblePickCount = 0;
+			var projectedPickCount = 0;
 
 			userPicks.forEach(pick => {
 				var team = teamMap[pick.team];
 				var standing = season ? season.getStanding(pick.team) : null;
-				var isLocked = pickLock.isPickLocked(pick.week, pick.team, lockState);
+				var weekFullyStarted = lockState.weeksPastDeadline.has(pick.week);
 
 				if (playoffsSet) {
 					if (!playoffTeams.includes(pick.team)) {
@@ -56,14 +52,11 @@ module.exports.show = async function(request, response) {
 						tiebreakers.push(pick.week);
 					}
 				}
-				else if (standing != null && standing.playoffProbability != null) {
+				else if (weekFullyStarted && standing != null && standing.playoffProbability != null) {
 					var likelyInPlayoffs = Math.round(standing.playoffProbability / 100);
 					var pickValue = 1 - likelyInPlayoffs;
 					projectedScore += pickValue;
-					if (isLocked) {
-						visibleProjectedScore += pickValue;
-						visiblePickCount++;
-					}
+					projectedPickCount++;
 				}
 			});
 
@@ -76,9 +69,9 @@ module.exports.show = async function(request, response) {
 				entry: entry,
 				score: playoffsSet ? score : null,
 				projectedScore: projectedScore,
-				visibleProjectedScore: playoffsSet ? null : (isCurrentUser ? projectedScore : visibleProjectedScore),
+				visibleProjectedScore: playoffsSet ? null : projectedScore,
 				tiebreakers: tiebreakers,
-				pickCount: isCurrentUser ? userPicks.length : visiblePickCount,
+				pickCount: projectedPickCount,
 				eliminatedWeek: eliminatedWeek,
 				isEliminated: eliminatedWeek != null
 			};
