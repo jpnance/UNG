@@ -72,11 +72,11 @@ $(document).ready(function() {
 				var firstMention = !seen[team.name];
 				seen[team.name] = true;
 
-				if (team.probability == null || (!force && !firstMention)) {
+				if (team.probabilityDisplay == null || (!force && !firstMention)) {
 					return team.name;
 				}
 
-				return team.name + ' (' + team.probability + '%)';
+				return team.name + ' (' + team.probabilityDisplay + ')';
 			});
 		};
 

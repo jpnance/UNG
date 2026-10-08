@@ -1,6 +1,7 @@
 var Team = require('../models/team');
 var Season = require('../models/Season');
 var Commentary = require('../models/Commentary');
+var playoffDisplay = require('../lib/playoffDisplay');
 
 function commentaryLookup(teams, standingsMap) {
 	var lookup = {};
@@ -9,7 +10,9 @@ function commentaryLookup(teams, standingsMap) {
 		var standing = standingsMap[team.abbreviation];
 		var entry = {
 			name: team.name,
-			probability: standing && standing.playoffProbability != null ? standing.playoffProbability : null
+			probabilityDisplay: standing && standing.playoffProbability != null
+				? playoffDisplay.formatPlayoffProbability(standing.playoffProbability, standing.clincherCode)
+				: null
 		};
 
 		lookup[team.abbreviation.toLowerCase()] = entry;
