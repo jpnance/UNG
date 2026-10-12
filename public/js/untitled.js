@@ -197,12 +197,8 @@ $(document).ready(function() {
 				return '<span class="btn btn-sm btn-outline-muted disabled pick-btn pick-btn-disabled">' + usedInWeek + '</span>';
 			}
 
-			if (isTeamLocked) {
+			if (isTeamLocked || state.isPickLocked) {
 				return '<span class="btn btn-sm btn-outline-muted disabled pick-btn pick-btn-disabled"><i class="fa-solid fa-lock"></i></span>';
-			}
-
-			if (state.isPickLocked) {
-				return '<span class="btn btn-sm btn-outline-muted disabled pick-btn pick-btn-disabled">○</span>';
 			}
 
 			return '<a class="btn btn-sm btn-outline-muted pick-btn pick-btn-available" href="/pick/' + teamAbbr + '">○</a>';
