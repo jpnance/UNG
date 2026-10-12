@@ -194,7 +194,7 @@ $(document).ready(function() {
 			}
 
 			if (isUsed) {
-				return '<span class="btn btn-sm btn-outline-muted disabled pick-btn pick-btn-disabled">' + usedInWeek + '</span>';
+				return '<span class="btn btn-sm pick-btn pick-btn-used disabled" title="Picked in week ' + usedInWeek + '">' + usedInWeek + '</span>';
 			}
 
 			if (isTeamLocked || state.isPickLocked) {

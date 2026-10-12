@@ -79,7 +79,7 @@ block content
 														else
 															a.btn.btn-sm.btn-primary.pick-btn(href='/unpick') ✓
 													else if isUsed
-														span.btn.btn-sm.btn-outline-muted.disabled.pick-btn.pick-btn-disabled #{usedInWeek}
+														span.btn.btn-sm.pick-btn.pick-btn-used.disabled(title='Picked in week ' + usedInWeek) #{usedInWeek}
 													else if isTeamLocked || isPickLocked
 														span.btn.btn-sm.btn-outline-muted.disabled.pick-btn.pick-btn-disabled
 															i.fa-solid.fa-lock
